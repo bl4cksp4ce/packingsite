@@ -1,0 +1,85 @@
+{% extends "layout.html" %}
+{% block content %}
+   <div class="content-section">
+        <form method="POST" action="">
+            {{ form.hidden_tag() }}
+            <fieldset class="form-group">
+                <legend class="border-bottom mb-4">New container</legend>
+
+                <div class="form-group">
+                    {{ form.name.label(class="form-control-label") }}
+                    {% if form.name.errors %}
+                        {{ form.name(class="form-control form-control-lg is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.name.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+
+                        </div>
+                    {% else %}
+                        {{ form.name(class="form-control form-control-lg") }}
+                    {% endif %}
+                </div>
+                <div class="form-group">
+                    {{ form.x.label(class="form-control-label") }}
+                    {% if form.x.errors %}
+                        {{ form.x(class="form-control form-control-lg is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.x.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+
+                        </div>
+                    {% else %}
+                        {{ form.x(class="form-control form-control-lg") }}
+                    {% endif %}
+                </div>
+                <div class="form-group">
+                    {{ form.y.label(class="form-control-label") }}
+                    {% if form.y.errors %}
+                        {{ form.y(class="form-control form-control-lg is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.y.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+
+                        </div>
+                    {% else %}
+                        {{ form.y(class="form-control form-control-lg") }}
+                    {% endif %}
+                </div>
+                <div class="form-group">
+                    {{ form.z.label(class="form-control-label") }}
+                    {% if form.z.errors %}
+                        {{ form.z(class="form-control form-control-lg is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.z.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+
+                        </div>
+                    {% else %}
+                        {{ form.z(class="form-control form-control-lg") }}
+                    {% endif %}
+                </div>
+                <div class="form-group">
+                    {{ form.max_weight.label(class="form-control-label") }}
+                    {% if form.max_weight.errors %}
+                        {{ form.max_weight(class="form-control form-control-lg is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.max_weight.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+
+                        </div>
+                    {% else %}
+                        {{ form.max_weight(class="form-control form-control-lg") }}
+                    {% endif %}
+                </div>
+            </fieldset>
+            <div class="form-group">
+                {{ form.submit(class="btn btn-outline-info") }}
+            </div>
+        </form>
+    </div>
+{% endblock content %}
