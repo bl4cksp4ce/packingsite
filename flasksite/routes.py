@@ -158,3 +158,8 @@ def new_packing():
         flash('Packing created', 'success')
         return redirect(url_for('home'))
     return render_template('create_packing.html', title='New Packing', form=form)
+
+@app.route("/packings/")
+def packings() :
+    packings = Packing.query.filter_by(user_id=current_user.id).all()
+    return render_template('packings.html', packings=packings)
