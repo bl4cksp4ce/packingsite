@@ -27,8 +27,7 @@ class RegistrationForm(FlaskForm):
 
 
 class LoginForm(FlaskForm):
-    #username = StringField('Username',
-                           #validators=[DataRequired(), Length(min=2, max=20)]
+
     email = StringField('Email',validators=[DataRequired(), Email()])
     password = PasswordField('Password', validators=[DataRequired()])
     #confirm_password = PasswordField('Confirm Password',
@@ -70,4 +69,17 @@ class ContainerForm(FlaskForm):
 
 class PackingForm(FlaskForm):
     name = StringField('Name', validators=[DataRequired()])
+    submit = SubmitField('Save')
+
+class BoxForm(FlaskForm):
+    name = StringField('Name', validators=[DataRequired()])
+    x = IntegerField('X', validators=[DataRequired()])
+    y = IntegerField('Y', validators=[DataRequired()])
+    z = IntegerField('Z', validators=[DataRequired()])
+    weight = IntegerField('Weight', validators=[DataRequired()])
+    r_x = BooleanField('X side:')
+    r_y = BooleanField('Y side:')
+    r_z = BooleanField('Z side:')
+    up = BooleanField('Up:')
+    down = BooleanField('Down:')
     submit = SubmitField('Save')

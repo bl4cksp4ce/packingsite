@@ -4,7 +4,7 @@
         <form method="POST" action="">
             {{ form.hidden_tag() }}
             <fieldset class="form-group">
-                <legend class="border-bottom mb-4">New container</legend>
+                <legend class="border-bottom mb-4">New box</legend>
 
                 <div class="form-group">
                     {{ form.name.label(class="form-control-label") }}
@@ -74,76 +74,6 @@
                         </div>
                     {% else %}
                         {{ form.weight(class="form-control form-control-lg") }}
-                    {% endif %}
-                </div>
-                <div class="form-group">
-                    {{ form.r_x.label(class="form-control-label") }}
-                    {% if form.r_x.errors %}
-                        {{ form.r_x(class="form-control form-control-lg is-invalid") }}
-                        <div class="invalid-feedback">
-                            {% for error in form.r_x.errors %}
-                                <span>{{ error }}</span>
-                            {% endfor %}
-
-                        </div>
-                    {% else %}
-                        {{ form.r_x(class="form-control form-control-lg") }}
-                    {% endif %}
-                </div>
-                <div class="form-group">
-                    {{ form.r_y.label(class="form-control-label") }}
-                    {% if form.r_y.errors %}
-                        {{ form.r_y(class="form-control form-control-lg is-invalid") }}
-                        <div class="invalid-feedback">
-                            {% for error in form.r_y.errors %}
-                                <span>{{ error }}</span>
-                            {% endfor %}
-
-                        </div>
-                    {% else %}
-                        {{ form.r_y(class="form-control form-control-lg") }}
-                    {% endif %}
-                </div>
-                <div class="form-group">
-                    {{ form.r_z.label(class="form-control-label") }}
-                    {% if form.r_z.errors %}
-                        {{ form.r_z(class="form-control form-control-lg is-invalid") }}
-                        <div class="invalid-feedback">
-                            {% for error in form.r_z.errors %}
-                                <span>{{ error }}</span>
-                            {% endfor %}
-
-                        </div>
-                    {% else %}
-                        {{ form.r_z(class="form-control form-control-lg") }}
-                    {% endif %}
-                </div>
-                <div class="form-group">
-                    {{ form.up.label(class="form-control-label") }}
-                    {% if form.up.errors %}
-                        {{ form.up(class="form-control form-control-lg is-invalid") }}
-                        <div class="invalid-feedback">
-                            {% for error in form.up.errors %}
-                                <span>{{ error }}</span>
-                            {% endfor %}
-
-                        </div>
-                    {% else %}
-                        {{ form.up(class="form-control form-control-lg") }}
-                    {% endif %}
-                </div>
-            <div class="form-group">
-                    {{ form.down.label(class="form-control-label") }}
-                    {% if form.down.errors %}
-                        {{ form.down(class="form-control form-control-lg is-invalid") }}
-                        <div class="invalid-feedback">
-                            {% for error in form.down.errors %}
-                                <span>{{ error }}</span>
-                            {% endfor %}
-
-                        </div>
-                    {% else %}
-                        {{ form.down(class="form-control form-control-lg") }}
                     {% endif %}
                 </div>
             </fieldset>
