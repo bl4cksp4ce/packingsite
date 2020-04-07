@@ -3,8 +3,8 @@ import secrets
 from PIL import Image
 from flask import Flask, render_template, url_for, flash, redirect, request, abort
 from flasksite import app, db, bcrypt
-from flasksite.forms import RegistrationForm, LoginForm, UpdateAccountForm, PostForm, ContainerForm
-from flasksite.models import User, Post, Container
+from flasksite.forms import RegistrationForm, LoginForm, UpdateAccountForm, PostForm, ContainerForm, PackingForm
+from flasksite.models import User, Post, Container, Packing
 from flask_login import login_user, current_user, logout_user, login_required
 
 
@@ -146,3 +146,15 @@ def new_container():
         flash('Container created', 'success')
         return redirect(url_for('home'))
     return render_template('create_container.html', title='New Container', form=form)
+
+@app.route("/packing/new", methods=['GET', 'POST'])
+@login_required
+def new_packing():
+    form = PackingForm()
+    if form.validate_on_submit():
+        packing = Packing(name=form.name.data, user_id=current_user.id)
+        db.session.add(packing)
+        db.session.commit()
+        flash('Packing created', 'success')
+        return redirect(url_for('home'))
+    return render_template('create_packing.html', title='New Packing', form=form)
