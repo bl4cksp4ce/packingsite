@@ -8,7 +8,7 @@
                     <small class="text-muted">{{ packing.date_created.strftime('%Y-%m-%d') }}</small>
                 </div>
                 <a class="mr-2" href="#">{{ packing.author }}</a>
-                <h2><a class="article-title" href="{{ url_for('packings') }}">{{ packing.name }}</a></h2>
+                <h2><a class="article-title" href="{{ url_for('packing', packing_id=packing.id) }}">{{ packing.name }}</a></h2>
             </div>
         </article>
     {% endfor %}

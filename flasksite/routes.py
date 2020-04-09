@@ -3,7 +3,7 @@ import secrets
 from PIL import Image
 from flask import Flask, render_template, url_for, flash, redirect, request, abort
 from flasksite import app, db, bcrypt
-from flasksite.forms import RegistrationForm, LoginForm, UpdateAccountForm, BoxForm
+from flasksite.forms import RegistrationForm, LoginForm, UpdateAccountForm, BoxForm, PostForm, PackingForm
 from flasksite.models import User, Post, Container, Packing
 from flask_login import login_user, current_user, logout_user, login_required
 
