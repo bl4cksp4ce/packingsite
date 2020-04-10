@@ -3,7 +3,7 @@ import secrets
 from PIL import Image
 from flask import Flask, render_template, url_for, flash, redirect, request, abort
 from flasksite import app, db, bcrypt
-from flasksite.forms import RegistrationForm, LoginForm, UpdateAccountForm, BoxForm, PostForm, PackingForm
+from flasksite.forms import RegistrationForm, LoginForm, UpdateAccountForm, BoxForm, PostForm, PackingForm, ContainerForm
 from flasksite.models import User, Post, Container, Packing
 from flask_login import login_user, current_user, logout_user, login_required
 
@@ -93,7 +93,7 @@ def new_post():
         post = Post(title=form.title.data, content = form.content.data, author=current_user)
         db.session.add(post)
         db.session.commit()
-        flash('Your post has been freated!', 'success')
+        flash('Your post has been created!', 'success')
         return redirect(url_for('home'))
     return render_template('create_post.html', title='New Post',
                            form=form, legend='New Post')
@@ -134,13 +134,13 @@ def delete_post(post_id) :
     flash('Your post has been deleted!', 'success')
     return redirect(url_for('home'))
 
-@app.route("/container/new", methods=['GET', 'POST'])
+@app.route("/packing/<int:packing_id>/container/new", methods=['GET', 'POST'])
 @login_required
-def new_container():
+def new_container(packing_id):
     form = ContainerForm()
+    packing = Packing.query.get_or_404(packing_id)
     if form.validate_on_submit():
-        container = Container(name=form.name.data, x=form.x.data, y=form.y.data,
-                              z=form.z.data, max_weight=form.max_weight.data, user_id=current_user.id)
+        container = Container(name=form.name.data, x=form.x.data, y=form.y.data, z=form.z.data, max_weight=form.max_weight.data, packing=packing) # user id itt kell vagy nem?
         db.session.add(container)
         db.session.commit()
         flash('Container created', 'success')
@@ -156,11 +156,11 @@ def new_packing():
         db.session.add(packing)
         db.session.commit()
         flash('Packing created', 'success')
-        return redirect(url_for('home'))
+        return redirect(url_for('packing', packing_id=packing.id))
     return render_template('create_packing.html', title='New Packing', form=form)
 
 @app.route("/packings/")
-def packings() :
+def packings():
     packings = Packing.query.filter_by(user_id=current_user.id).all()
     return render_template('packings.html', packings=packings)
 
@@ -176,3 +176,12 @@ def new_box():
         flash('Box added', 'success')
         return redirect(url_for('home'))
     return render_template('create_box.html', title='New Box', form=form)
+
+@app.route("/packing1/<int:packing_id>")
+def packing(packing_id):
+    packing = Packing.query.get_or_404(packing_id)
+    containers = Container.query.filter_by(packing_id= packing_id).all()
+    #posts = Post.query.all()
+    #return render_template('home.html', posts=posts)
+
+    return render_template('packing1.html', name=packing.name, packing=packing, containers = containers)

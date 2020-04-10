@@ -16,7 +16,7 @@ class User(db.Model, UserMixin):
     password = db.Column(db.String(60), nullable=False)
     posts = db.relationship('Post', backref='author', lazy=True)
     #testin fix this when ready
-    containers = db.relationship('Container', backref='author', lazy=True)
+    packings = db.relationship('Packing', backref='author', lazy=True)
 
     def __repr__(self):
         return f"User('{self.username}','{self.email}', '{self.image_file}')"
@@ -38,13 +38,14 @@ class Container(db.Model):
     y = db.Column(db.Integer, nullable=False)
     z = db.Column(db.Integer, nullable=False)
     max_weight = db.Column(db.Integer, nullable=False)
-    #container_id
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+
+    packing_id = db.Column(db.Integer, db.ForeignKey('packing.id'), nullable=False)
+
 
 
     def __repr__(self):
         return f"Container('{self.name}', x='{self.x}', y='{self.y}')," \
-               f"z='{self.z}', max weight='{self.max_weight}'"
+               f"z='{self.z}', max weight='{self.max_weight}', packing_id='{self.packing_id}', id='{self.id}'"
 
 class Packing(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -52,6 +53,8 @@ class Packing(db.Model):
     date_created = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
+    containers = db.relationship('Container', backref='packing', lazy=True)
+
 
     def __repr__(self):
-        return f"Post('{self.name}', '{self.date_posted}')"
+        return f"Packing('{self.name}', '{self.date_created}', id: '{self.id}')"

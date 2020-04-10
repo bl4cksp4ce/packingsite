@@ -1,10 +1,22 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
-</head>
-<body>
-$END$
-</body>
-</html>
+{% extends "layout.html" %}
+{% block content %}
+    <article class="media content-section">
+        <div class="media-body">
+            <div class="article-metadata">
+                <small class="text-muted">{{ packing.date_created.strftime('%Y-%m-%d') }}</small>
+            </div>
+            <h2 class="article-title"><{{ packing.name }}</h2>
+            <p class="article-content">{{ packing.date_created }}</p>
+            <div class="container">
+                <div class="column">dewf</div>
+                <div class="article-metadata">
+                    <a class="mr-2" href="#">{{ packing.containers }}</a>
+                </div>
+                <div>
+                    <a class="btn btn-secondary btn-sm mt-1 mb-1" href="{{ url_for('new_container',packing_id=packing.id) }}">Next</a>
+                </div>
+                <div class="column">fwefew</div>
+            </div>
+        </div>
+    </article>
+{% endblock content %}
