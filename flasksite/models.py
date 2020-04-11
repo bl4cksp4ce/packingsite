@@ -38,14 +38,33 @@ class Container(db.Model):
     y = db.Column(db.Integer, nullable=False)
     z = db.Column(db.Integer, nullable=False)
     max_weight = db.Column(db.Integer, nullable=False)
-
+    #user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     packing_id = db.Column(db.Integer, db.ForeignKey('packing.id'), nullable=False)
-
-
 
     def __repr__(self):
         return f"Container('{self.name}', x='{self.x}', y='{self.y}')," \
                f"z='{self.z}', max weight='{self.max_weight}', packing_id='{self.packing_id}', id='{self.id}'"
+
+class Box(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    x = db.Column(db.Integer, nullable=False)
+    y = db.Column(db.Integer, nullable=False)
+    z = db.Column(db.Integer, nullable=False)
+    r_x = db.Column(db.Boolean, default=False, nullable=False)
+    r_y = db.Column(db.Boolean, default=False, nullable=False)
+    r_z = db.Column(db.Boolean, default=False, nullable=False)
+    up = db.Column(db.Boolean, default=False, nullable=False)
+    down = db.Column(db.Boolean, default=False, nullable=False)
+    weight = db.Column(db.Integer, nullable=False)
+    #user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    packing_id = db.Column(db.Integer, db.ForeignKey('packing.id'), nullable=False)
+
+    def __repr__(self):
+        return f"Box('{self.name}', x='{self.x}', y='{self.y}')," \
+               f"z='{self.z}', x rotation='{self.r_x}', y rotation='{self.r_y}'," \
+               f" z rotation='{self.r_z}', up='{self.up}', down='{self.down}'," \
+               f" weight='{self.weight}', packing_id='{self.packing_id}', id='{self.id}')" #, user_id='{self.user_id}')"
 
 class Packing(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -54,6 +73,7 @@ class Packing(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
     containers = db.relationship('Container', backref='packing', lazy=True)
+    boxes = db.relationship('Box', backref='packing', lazy=True)
 
 
     def __repr__(self):

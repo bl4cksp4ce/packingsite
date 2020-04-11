@@ -9,7 +9,9 @@
                 </div>
                 <a class="mr-2" href="#">{{ packing.author }}</a>
                 <h2><a class="article-title" href="{{ url_for('packing', packing_id=packing.id) }}">{{ packing.name }}</a></h2>
-                <a class="mr-2" href="#">{{ packing.containers }}</a>
+                {% for container in packing.containers %}
+                    <h2><a class="mr-2" href="#">{{ container.name }}</a></h2>
+                {% endfor %}
             </div>
         </article>
     {% endfor %}

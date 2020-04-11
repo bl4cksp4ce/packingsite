@@ -10,10 +10,19 @@
             <div class="container">
                 <div class="column">dewf</div>
                 <div class="article-metadata">
-                    <a class="mr-2" href="#">{{ packing.containers }}</a>
+                    <h2>Containers:</h2>
+                    {% for container in packing.containers %}
+                        <h2><a class="mr-2" href="#">{{ container.name }}</a></h2>
+                    {% endfor %}
+                    <h2>Boxes:</h2>
+                    {% for box in packing.boxes %}
+                        <h2><a class="mr-2" href="#">{{ box.name }}</a></h2>
+                    {% endfor %}
                 </div>
                 <div>
-                    <a class="btn btn-secondary btn-sm mt-1 mb-1" href="{{ url_for('new_container',packing_id=packing.id) }}">Next</a>
+
+                    <a class="btn btn-secondary btn-sm mt-1 mb-1" href="{{ url_for('new_container',packing_id=packing.id) }}">Add container</a>
+                     <a class="btn btn-secondary btn-sm mt-1 mb-1" href="{{ url_for('new_box',packing_id=packing.id) }}">Add box</a>
                 </div>
                 <div class="column">fwefew</div>
             </div>

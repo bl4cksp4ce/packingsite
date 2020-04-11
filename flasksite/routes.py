@@ -4,7 +4,7 @@ from PIL import Image
 from flask import Flask, render_template, url_for, flash, redirect, request, abort
 from flasksite import app, db, bcrypt
 from flasksite.forms import RegistrationForm, LoginForm, UpdateAccountForm, BoxForm, PostForm, PackingForm, ContainerForm
-from flasksite.models import User, Post, Container, Packing
+from flasksite.models import User, Post, Container, Packing, Box
 from flask_login import login_user, current_user, logout_user, login_required
 
 
@@ -144,7 +144,7 @@ def new_container(packing_id):
         db.session.add(container)
         db.session.commit()
         flash('Container created', 'success')
-        return redirect(url_for('home'))
+        return redirect(url_for('new_box', packing_id=packing_id))
     return render_template('create_container.html', title='New Container', form=form)
 
 @app.route("/packing/new", methods=['GET', 'POST'])
@@ -164,18 +164,30 @@ def packings():
     packings = Packing.query.filter_by(user_id=current_user.id).all()
     return render_template('packings.html', packings=packings)
 
-@app.route("/box/new", methods=['GET', 'POST'])
+
+
+@app.route("/packing/<int:packing_id>/box/new", methods=['GET', 'POST'])
 @login_required
-def new_box():
+def new_box(packing_id):
     form = BoxForm()
+    packing = Packing.query.get_or_404(packing_id)
     if form.validate_on_submit():
-        #container = Container(name=form.name.data, x=form.x.data, y=form.y.data,
-        #                      z=form.z.data, max_weight=form.max_weight.data, user_id=current_user.id)
-        #db.session.add(container)
-        #db.session.commit()
+        box = Box(name=form.name.data, x=form.x.data, y=form.y.data,z=form.z.data, r_x=form.r_x.data, r_y=form.r_y.data, r_z=form.r_z.data,
+            up=form.up.data, down=form.down.data, weight=form.weight.data, packing=packing) #fix this, add db box
+        db.session.add(box)
+        db.session.commit()
         flash('Box added', 'success')
-        return redirect(url_for('home'))
+        return redirect(url_for('packings'))
     return render_template('create_box.html', title='New Box', form=form)
+
+
+
+
+
+
+
+
+
 
 @app.route("/packing1/<int:packing_id>")
 def packing(packing_id):
