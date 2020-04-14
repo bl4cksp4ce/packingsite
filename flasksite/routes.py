@@ -1,11 +1,16 @@
 import os
 import secrets
+import pickle
+import numpy as np
+import random
 from PIL import Image
 from flask import Flask, render_template, url_for, flash, redirect, request, abort
 from flasksite import app, db, bcrypt
+from flasksite.functions import generate_boxes, putbox, create_container_instance
 from flasksite.forms import RegistrationForm, LoginForm, UpdateAccountForm, BoxForm, PostForm, PackingForm, ContainerForm
-from flasksite.models import User, Post, Container, Packing, Box
+from flasksite.models import User, Post, Container, Packing, Box, ContainerInstance, BoxInstance
 from flask_login import login_user, current_user, logout_user, login_required
+from sqlalchemy import desc
 
 
 @app.route('/') #decorator
@@ -64,6 +69,11 @@ def save_picture(form_picture):
 
     i.save(picture_path)
     return picture_fn
+
+#def new_container_instance(container_id):
+    #instance=0
+    #return instance
+
 
 @app.route("/account", methods=['GET', 'POST'])
 @login_required
@@ -147,6 +157,8 @@ def new_container(packing_id):
         return redirect(url_for('new_box', packing_id=packing_id))
     return render_template('create_container.html', title='New Container', form=form)
 
+
+
 @app.route("/packing/new", methods=['GET', 'POST'])
 @login_required
 def new_packing():
@@ -173,7 +185,7 @@ def new_box(packing_id):
     packing = Packing.query.get_or_404(packing_id)
     if form.validate_on_submit():
         box = Box(name=form.name.data, x=form.x.data, y=form.y.data,z=form.z.data, r_x=form.r_x.data, r_y=form.r_y.data, r_z=form.r_z.data,
-            up=form.up.data, down=form.down.data, weight=form.weight.data, packing=packing) #fix this, add db box
+            up=form.up.data, down=form.down.data, weight=form.weight.data, quantity=form.quantity.data, packing=packing) #fix this, add db box
         db.session.add(box)
         db.session.commit()
         flash('Box added', 'success')
@@ -184,7 +196,56 @@ def new_box(packing_id):
 
 
 
+@app.route('/packing1/<int:packing_id>/container/<int:container_id>/')
+def container(container_id, packing_id):
+    container = Container.query.get_or_404(container_id)
+    packing_id=container.packing_id
+    #containers = Container.query.filter_by(packing_id= packing_id).all()
+    #posts = Post.query.all()
+    #return render_template('home.html', posts=posts)
 
+    return render_template('container.html', container = container, packing_id=packing_id)
+
+@app.route('/packing1/<int:packing_id>/box/<int:box_id>/')
+def box(box_id, packing_id):
+    box = Box.query.get_or_404(box_id)
+    packing_id=box.packing_id
+    #containers = Container.query.filter_by(packing_id= packing_id).all()
+    #posts = Post.query.all()
+    #return render_template('home.html', posts=posts)
+
+    return render_template('box.html', box = box, packing_id=packing_id)
+
+
+
+@app.route("/packing1/<int:packing_id>/box/<int:box_id>/delete", methods=['POST'])
+@login_required
+def delete_box(box_id, packing_id):
+    box = Box.query.get_or_404(box_id)
+    packing = Packing.query.filter_by(id=packing_id).all()
+    #print(packing)
+    user_id = packing[0].user_id
+    user = User.query.filter_by(id=user_id).first()
+    if  user != current_user:#fixthis: need to access author/user from box, maybe data model change needed maybe accessible with query
+        abort(403)  # forbidden route
+    db.session.delete(box)
+    db.session.commit()
+    flash('Your box has been deleted!', 'success')
+    return redirect(url_for('packings'))
+
+@app.route("/packing1/<int:packing_id>/container/<int:container_id>/delete", methods=['POST'])
+@login_required
+def delete_container(container_id, packing_id) :
+    container = Container.query.get_or_404(container_id)
+    packing = Packing.query.filter_by(id=packing_id).all()
+    user_id = packing[0].user_id
+    user = User.query.filter_by(id=user_id).first()
+    if  user != current_user:
+        abort(403)  # forbidden route
+    db.session.delete(container)
+    db.session.commit()
+    flash('Your box has been deleted!', 'success')
+    return redirect(url_for('packings'))
 
 
 
@@ -197,3 +258,78 @@ def packing(packing_id):
     #return render_template('home.html', posts=posts)
 
     return render_template('packing1.html', name=packing.name, packing=packing, containers = containers)
+
+@app.route("/packing1/<int:packing_id>/plan")
+def generate_plan(packing_id):
+    packing = Packing.query.get_or_404(packing_id)
+    container = Container.query.filter_by(packing_id=packing_id).first()
+    boxes = Box.query.filter_by(packing_id=packing_id).all()
+    #full_weight = 0
+    #for box in boxes:
+        #full_weight += box.weight
+    container_type = container.id
+    packing_id = packing_id
+    x = container.x
+    y = container.y
+    z = container.z
+    name = container.name
+    container_instance_id = 0 #ezt kell növelni új konténernél
+    array_boxes = np.zeros((int(x/10), int(y/10), int(z/10)), dtype='int')
+    #id = random.randint(1, 20000)
+    filename = "instance" + str(container_instance_id) + ".pkl"
+    directory = 'containers/containers_' + str(packing_id)
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+    container_instance_id +=1 #for the next instance
+
+    #boxes_in = [] #integer array of the box_ids
+    boxes_file = "boxids.pkl"
+    #path_box = directory + "/" + boxes_file #lehet ezt hozzá kéne adni a boxhoz?
+    path = directory + "/" + filename
+    pickle.dump(array_boxes, open(path, "wb"))#létrejön példányoításkor, címeiket valahol tárolni kéne
+    #pickle.dump(boxes_in, open(path_box, "wb"))
+
+    #box_p = pickle.load(open(path_box), "rb")
+    data_p = pickle.load(open(path, "rb"))
+    full_weight = data_p[1][1][1]
+
+    generate_boxes(packing_id)
+    #acking = Packing.query.filter_by(id=packing_id).all()
+    container_instance_path = create_container_instance(packing_id)
+    box_instances_ordered = BoxInstance.query.filter_by(packing_id=packing_id).first()#order_by(desc(BoxInstance.weight)).
+    #box_instances_ordered.sort(key=box_instances_ordered.weight, reverse=True)
+    #.order_by(BoxInstance.weight.desc())
+    containers_ordered = ContainerInstance.query.filter_by(packing_id=packing_id).first()#.order_by(ContainerInstance.weight_remaining)
+    #b = box_instances_ordered[0]
+    #c = containers_ordered[0]
+    id_i = 1
+    box_locations = []
+    putbox(containers_ordered, box_instances_ordered, container_instance_path,box_locations, id_i)
+
+    #for i in range(box_instances_ordered):
+     #   b = box_instances_ordered[i]
+      #  a = 0
+       # c = containers_ordered[a]
+        #while(not b.packed):
+
+
+        #maybe filename for the path of the matrix
+        #
+
+
+    #thing_to_save = cPickle.load(open("filename.pkl", "rb"))
+    #container_instance = ContainerInstance(name=name, container_type=container_type, packing_id=packing_id, x=x, y=y, z=z, array_boxes=array_boxes)
+    #post = Post(name=form.title.data, content=form.content.data, author=current_user)
+    #db.session.add(container_instance)
+    #db.session.commit()
+    #lehetne space remaining a konténer adatbázisban, meg weight remaining, database modellhez mehet ez,
+    #  utána id alapján megkeresi a pickleök között a mátrixát, amit frissít a pakolásakor,
+    #  ekkor frissül a weigh és space remaining és a dobozok pickle és a dobozok ide vonatkozó részei
+    #a dobozokat meg szintén hozzádaja a picklökhöz, így vissza lehet hívni az adatot a riporthoz
+
+    #tehát beindul a pakolés, újabb és újabb instanceek lesznek a konténerekből, ezek mappákban lesznek,
+    #a doboz instanceket valahogy át kell adni a pakolófüggvénynek
+    #az id-nak megfelelő mappában a modell, így azt a pakoló átadás nélkül eléri
+
+    return render_template('plan.html', full_weight=full_weight)
+
