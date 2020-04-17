@@ -77,6 +77,7 @@ class BoxForm(FlaskForm):
     y = IntegerField('Y', validators=[DataRequired()])
     z = IntegerField('Z', validators=[DataRequired()])
     weight = IntegerField('Weight', validators=[DataRequired()])
+    quantity = IntegerField('Quantity', validators=[DataRequired()])
     r_x = BooleanField('X side:')
     r_y = BooleanField('Y side:')
     r_z = BooleanField('Z side:')

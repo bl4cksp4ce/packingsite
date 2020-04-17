@@ -1,0 +1,37 @@
+{% extends "layout.html" %}
+{% block content %}
+    <article class="media content-section">
+        <div class="media-body">
+            <div class="article-metadata">
+                <small class="text-muted">Container</small>
+            </div>
+            <h2 class="article-title">{{ container.name }}</h2>
+            <p class="article-content">X:   {{ container.x }}</p>
+            <p class="article-content">Y:   {{ container.y }}</p>
+            <p class="article-content">Z:   {{ container.z }}</p>
+            <p class="article-content">Maximum Weight:  {{ container.max_weight }}</p>
+            <div class="container">
+                <button type="button" class="btn btn-danger btn-sm m-1" data-toggle="modal" data-target="#deleteModal">Delete</button>
+            </div>
+        </div>
+    </article>
+    <!-- Modal -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="deleteModalLabel">Delete Container?</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+            <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <form action="{{ url_for('delete_container', container_id=container.id, packing_id=packing_id) }}" method="POST">
+                <input class="btn btn-danger" type="submit" value="Delete">
+            </form>
+            </div>
+        </div>
+    </div>
+    </div>
+{% endblock content %}

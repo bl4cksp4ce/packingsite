@@ -76,6 +76,55 @@
                         {{ form.weight(class="form-control form-control-lg") }}
                     {% endif %}
                 </div>
+                <div class="form-group">
+                    {{ form.quantity.label(class="form-control-label") }}
+                    {% if form.quantity.errors %}
+                        {{ form.quantity(class="form-control form-control-lg is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.quantity.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+
+                        </div>
+                    {% else %}
+                        {{ form.quantity(class="form-control form-control-lg") }}
+                    {% endif %}
+                </div>
+                <div class="form-group">
+                    {{ form.r_x.label(class="form-control-label") }}
+                    {% if form.r_x.errors %}
+                        {{ form.r_x(class="form-control form-control-lg is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.r_x.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+
+                        </div>
+                    {% else %}
+                        {{ form.r_x(class="form-control form-control-lg") }}
+                    {% endif %}
+                </div>
+                <div class="form-check">
+                    {{ form.r_x.label(class="form-check-label") }}
+                    <a>                 </a>
+                    {{ form.r_x(class="form-check-input") }}
+                </div>
+                <div class="form-check">
+                    {{ form.r_y.label(class="form-check-label") }}
+                    {{ form.r_y(class="form-check-input") }}
+                </div>
+                <div class="form-check">
+                    {{ form.r_z.label(class="form-check-label") }}
+                    {{ form.r_z(class="form-check-input") }}
+                </div>
+                <div class="form-check">
+                    {{ form.up.label(class="form-check-label") }}
+                    {{ form.up(class="form-check-input") }}
+                </div>
+                <div class="form-check">
+                    {{ form.down.label(class="form-check-label") }}
+                    {{ form.down(class="form-check-input") }}
+                </div>
             </fieldset>
             <div class="form-group">
                 {{ form.submit(class="btn btn-outline-info") }}

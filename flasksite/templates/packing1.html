@@ -12,19 +12,19 @@
                 <div class="article-metadata">
                     <h2>Containers:</h2>
                     {% for container in packing.containers %}
-                        <h2><a class="mr-2" href="#">{{ container.name }}</a></h2>
+                        <h2><a class="mr-2" href="{{ url_for('container', container_id=container.id, packing_id=container.packing_id) }}">{{ container.name }}</a></h2>
                     {% endfor %}
                     <h2>Boxes:</h2>
                     {% for box in packing.boxes %}
-                        <h2><a class="mr-2" href="#">{{ box.name }}</a></h2>
+                        <h2><a class="mr-2" href="{{ url_for('box', box_id=box.id, packing_id=box.packing_id) }}">{{ box.name }}</a></h2>
                     {% endfor %}
                 </div>
                 <div>
 
                     <a class="btn btn-secondary btn-sm mt-1 mb-1" href="{{ url_for('new_container',packing_id=packing.id) }}">Add container</a>
                      <a class="btn btn-secondary btn-sm mt-1 mb-1" href="{{ url_for('new_box',packing_id=packing.id) }}">Add box</a>
+                     <a class="btn btn-secondary btn-sm mt-1 mb-1" href="{{ url_for('generate_plan', packing_id=packing.id) }}">Generate plan</a>
                 </div>
-                <div class="column">fwefew</div>
             </div>
         </div>
     </article>

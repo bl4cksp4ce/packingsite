@@ -45,6 +45,41 @@ class Container(db.Model):
         return f"Container('{self.name}', x='{self.x}', y='{self.y}')," \
                f"z='{self.z}', max weight='{self.max_weight}', packing_id='{self.packing_id}', id='{self.id}'"
 
+class ContainerInstance(db.Model):
+
+    packing_id = db.Column(db.Integer)
+    container_id = db.Column(db.Integer, db.ForeignKey('container.id'), nullable=False)
+    instance_id = db.Column(db.Integer, primary_key=True)
+    x = db.Column(db.Integer, nullable=False)
+    y = db.Column(db.Integer, nullable=False)
+    z = db.Column(db.Integer, nullable=False)
+    weight_remaining = db.Column(db.Integer, nullable=False)
+    space_remaining = db.Column(db.Integer, nullable=False)
+
+    def __repr__(self):
+        return f"Container instance('container={self.container_id}', x='{self.x}', y='{self.y}')," \
+               f"z='{self.z}', weight remaining='{self.weight_remaining}', instance_id='{self.instance_id}'," \
+               f" space_remaining='{self.space_remaining}' packing id= '{self.packing_id}'"
+
+
+class BoxInstance(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    x = db.Column(db.Integer, nullable=False)
+    y = db.Column(db.Integer, nullable=False)
+    z = db.Column(db.Integer, nullable=False)
+    weight = db.Column(db.Integer, nullable=False)
+    packing_id = db.Column(db.Integer, db.ForeignKey('packing.id'), nullable=False)
+    #lehet primary key a container_instance?
+    container_instance_id = db.Column(db.Integer)#ide nem biztos h kell a nullable
+    x_start = db.Column(db.Integer)
+    x_end = db.Column(db.Integer)
+    y_start = db.Column(db.Integer)
+    y_end = db.Column(db.Integer)
+    z_start = db.Column(db.Integer)
+    z_end = db.Column(db.Integer)
+    packed = db.Column(db.Integer)#inicializálás nullával
+
 class Box(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
@@ -57,6 +92,7 @@ class Box(db.Model):
     up = db.Column(db.Boolean, default=False, nullable=False)
     down = db.Column(db.Boolean, default=False, nullable=False)
     weight = db.Column(db.Integer, nullable=False)
+    quantity = db.Column(db.Integer, nullable=False)
     #user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     packing_id = db.Column(db.Integer, db.ForeignKey('packing.id'), nullable=False)
 
@@ -64,7 +100,7 @@ class Box(db.Model):
         return f"Box('{self.name}', x='{self.x}', y='{self.y}')," \
                f"z='{self.z}', x rotation='{self.r_x}', y rotation='{self.r_y}'," \
                f" z rotation='{self.r_z}', up='{self.up}', down='{self.down}'," \
-               f" weight='{self.weight}', packing_id='{self.packing_id}', id='{self.id}')" #, user_id='{self.user_id}')"
+               f" weight='{self.weight}', packing_id='{self.packing_id}', id='{self.id}', quantity='{self.quantity}')" #, user_id='{self.user_id}')"
 
 class Packing(db.Model):
     id = db.Column(db.Integer, primary_key=True)

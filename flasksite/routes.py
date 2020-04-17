@@ -2,6 +2,10 @@ import os
 import secrets
 import pickle
 import numpy as np
+import matplotlib.pyplot as plt
+import mpld3
+
+
 import random
 from PIL import Image
 from flask import Flask, render_template, url_for, flash, redirect, request, abort
@@ -293,24 +297,125 @@ def generate_plan(packing_id):
     data_p = pickle.load(open(path, "rb"))
     full_weight = data_p[1][1][1]
 
+    box_instances = BoxInstance.query.filter_by(packing_id=packing_id).all()
+    #ha masnak is lehet ilyen packing id, akkor lehet baj
+    #if box_instances.author != current_user:
+        #abort(403)  # forbidden route
+    for b in box_instances:
+        db.session.delete(b)
+        db.session.commit()
     generate_boxes(packing_id)
     #acking = Packing.query.filter_by(id=packing_id).all()
     container_instance_path = create_container_instance(packing_id)
-    box_instances_ordered = BoxInstance.query.filter_by(packing_id=packing_id).first()#order_by(desc(BoxInstance.weight)).
-    #box_instances_ordered.sort(key=box_instances_ordered.weight, reverse=True)
+    box_instances_ordered = BoxInstance.query.filter_by(packing_id=packing_id).order_by(desc(BoxInstance.x*BoxInstance.y*BoxInstance.z)).all()#order_by(desc(BoxInstance.weight)).
+    #box_instances_ordered.sort(key=weight, reverse=True)
     #.order_by(BoxInstance.weight.desc())
-    containers_ordered = ContainerInstance.query.filter_by(packing_id=packing_id).first()#.order_by(ContainerInstance.weight_remaining)
+    #box_instances_by_size = BoxInstance.query.order_by()
+    containers_ordered = ContainerInstance.query.filter_by(packing_id=packing_id).order_by(ContainerInstance.weight_remaining).all()
+    #v = containers_ordered[0].get('x')
+    #containers are neot ordered yet
     #b = box_instances_ordered[0]
     #c = containers_ordered[0]
     id_i = 1
     box_locations = []
-    putbox(containers_ordered, box_instances_ordered, container_instance_path,box_locations, id_i)
+    #a_l = {"a": 11111, 'b': 2}
 
+    for b in box_instances_ordered:
+        a = False
+        putbox(containers_ordered[0], b, container_instance_path, box_locations, id_i, a)
+    l = len(box_locations)
+    #for b in box_instances_ordered:
+        #global a
+        #a = False
+        #space = b.x*b.y*b.z
+        #for co in containers_ordered:
+        #c = containers_ordered[0]
+            #if co.space_remaining>=space and co.weight_remaining>=b.weight:
+                #filename = "instance" + str(co.container_instance_id) + ".pkl"
+                #directory = 'containers/containers_' + str(packing_id)
+                #path = directory + "/" + filename
+                #container instance path needs to be redefined if there is a new instance fix this
+                #global a
+                #putbox(co, b, path,box_locations, id_i, a)
+                #if a :
+                    #break
+        #if not a :
+            #path = create_container_instance(packing_id)
+            #putbox(co, b, path, box_locations, id_i, a)
+
+    #box_locations.append(a_l)
+    a = box_locations[0].get('x_start')
+    b = box_locations[0].get('x_end')
+    dict = {
+        "name" : "Fs",
+        "x" : 3,
+        "y" : b,
+        'z' : a
+    }
+    #dict_2 = {
+        #"name": "Fs",
+        #"x": 3,
+        #"y": 2,
+        #'z': 1
+    #}
+    #dictlist = []
+    #dictlist.append(dict)
+    #dictlist.append(dict_2)
+    #plt.plot([3, 1, 4, 1, 5], 'ks-', mec='w', mew=5, ms=20)
+    #mpld3.show()
+
+    #boxes_plt = []
+    # for a in box3d:
+    # a = box_location[0]
+    # print(a)
+    # print(a.get('x_start'))
+    #for a in box_locations:
+        #cube_1 = (x >= a.get('x_start')) & (x < a.get('x_end')) & (y >= a.get('y_start')) & (y < a.get('y_end')) & (
+        #z >= a.get('z_start')) & (z < a.get('z_end'))
+        #boxes_plt.append(cube_1)
+
+    #voxels = boxes_plt[0]
+    #for i in range(1, len(boxes_plt)):
+        #voxels |= boxes_plt[i]
+    #colors = np.empty(voxels.shape, dtype=object)
+    #colors_list = ['red', 'green', 'blue', 'purple', 'cyan', 'violet', 'springgreen']
+    #for i in boxes_plt:
+        #colors[i] = random.choice(colors_list)
+
+    #x, y, z = np.indices((8, 8, 8))
+
+    # draw cuboids in the top left and bottom right corners, and a link between them
+    #cube1 = (x < 3) & (y < 3) & (z < 3)
+    #cube2 = (x >= 5) & (y >= 5) & (z >= 5)
+    #link = abs(x - y) + abs(y - z) + abs(z - x) <= 2
+
+    # combine the objects into a single boolean array
+    #voxels = cube1 | cube2 | link
+
+    # set the colors of each object
+    #colors = np.empty(voxels.shape, dtype=object)
+    #colors[link] = 'red'
+    #colors[cube1] = 'blue'
+    #colors[cube2] = 'green'
+
+    # and plot everything
+    #fig = plt.figure()
+    #ax = fig.gca(projection='3d')
+    #ax.voxels(voxels, facecolors=colors, edgecolor='k')
+    #fig = plt.figure()
+    #ax = fig.gca(projection='3d')
+    #ax.voxels(voxels, facecolors=colors, edgecolor='k')
+
+    #mpld3.show()
+    #pd.Series(fig).to_json(orient='values')
+    #json_dump = json.dumps(fig, cls=NumpyEncoder)
+    #html_graph = mpld3.fig_to_html(fig)
     #for i in range(box_instances_ordered):
      #   b = box_instances_ordered[i]
       #  a = 0
        # c = containers_ordered[a]
         #while(not b.packed):
+
 
 
         #maybe filename for the path of the matrix
@@ -330,6 +435,7 @@ def generate_plan(packing_id):
     #tehát beindul a pakolés, újabb és újabb instanceek lesznek a konténerekből, ezek mappákban lesznek,
     #a doboz instanceket valahogy át kell adni a pakolófüggvénynek
     #az id-nak megfelelő mappában a modell, így azt a pakoló átadás nélkül eléri
+    container_instance = containers_ordered[0]
 
-    return render_template('plan.html', full_weight=full_weight)
+    return render_template('plan.html', full_weight=full_weight, box_locations=box_locations, box_instances_ordered=box_instances_ordered, containers_ordered=containers_ordered, l=l, container_instance=container_instance)
 

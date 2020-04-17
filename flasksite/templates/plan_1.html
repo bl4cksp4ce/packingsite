@@ -1,0 +1,15 @@
+{% extends "layout.html" %}
+{% block content %}
+    <h1>{{ full_weight }}</h1>
+    <h1>{{ l }}</h1>
+    <h1>{{ box_instances_ordered.y }}</h1>
+    <h1>{{ box_instances_ordered.z }}</h1>
+    <h1>{{ containers_ordered.x }}</h1>
+    <h1>{{ containers_ordered.y }}</h1>
+    <h1>{{ containers_ordered.z }}</h1>
+    <body>
+        <script type="text/javascript" src="/static/main.js"></script>
+        <script src="https://threejs.org/build/three.js"></script>
+        <script type="text/javascript" src="/static/cubes.js"></script>
+	</body>
+{% endblock content %}
