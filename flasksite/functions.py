@@ -40,6 +40,7 @@ def create_container_instance(packing_id):
 	db.session.commit()
 	#name = container.name
 	container_instance_id = container_instance.instance_id
+	print(container_instance.instance_id, file=sys.stderr)
 	array_boxes = np.zeros((int(x / 10), int(y / 10), int(z / 10)), dtype='int') #milliméter
 	filename = "instance" + str(container_instance_id) + ".pkl"
 	directory = 'containers/containers_' + str(packing_id)
@@ -234,6 +235,7 @@ def putbox(container, box, container_path, box_locations, id, a):  # box_id
 								location['y_end'] = j + round(s[1]/10)
 								location['z_start'] = k
 								location['z_end'] = k + round(s[0]/10)
+								location['id'] = id
 								box_locations.append(location)
 								pickle.dump(container_array, open(container_path, "wb"))
 								a = True
@@ -247,5 +249,5 @@ def putbox(container, box, container_path, box_locations, id, a):  # box_id
 		i += 1
 		k = 0
 	#a = {"a":11111, 'b':2}
-	#return False
+	return False
 	#return a

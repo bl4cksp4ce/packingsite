@@ -1,5 +1,3 @@
-import {OrbitControls} from 'https://threejsfundamentals.org/threejs/resources/threejs/r115/examples/jsm/controls/OrbitControls.js';
-
 function getRandomColor() {
     var letters = '0123456789ABCDEF';
     var color = '#';
@@ -8,7 +6,7 @@ function getRandomColor() {
     }
     return color;
 }
-var pyData = JSON.parse('{{box_locations | tojson | safe}}');
+var pyData = JSON.parse("{{box_locations | tojson | safe}}");
 
 var x_c = '{{ container_instance.x }}'/10;
 var y_c = '{{ container_instance.y }}'/10;

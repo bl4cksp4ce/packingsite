@@ -2,6 +2,7 @@ import os
 import secrets
 import pickle
 import numpy as np
+import sys
 import matplotlib.pyplot as plt
 import mpld3
 
@@ -263,6 +264,11 @@ def packing(packing_id):
 
     return render_template('packing1.html', name=packing.name, packing=packing, containers = containers)
 
+def results(packing_id):
+    container_instances = ContainerInstance.query.all(packing_id).all()
+    containers_used = len(container_instances)
+
+
 @app.route("/packing1/<int:packing_id>/plan")
 def generate_plan(packing_id):
     packing = Packing.query.get_or_404(packing_id)
@@ -305,13 +311,18 @@ def generate_plan(packing_id):
         db.session.delete(b)
         db.session.commit()
     generate_boxes(packing_id)
+    containers_ordered = ContainerInstance.query.filter_by(packing_id=packing_id).order_by(
+        ContainerInstance.weight_remaining).all()
+    for c in containers_ordered:
+        db.session.delete(c)
+        db.session.commit()
     #acking = Packing.query.filter_by(id=packing_id).all()
     container_instance_path = create_container_instance(packing_id)
     box_instances_ordered = BoxInstance.query.filter_by(packing_id=packing_id).order_by(desc(BoxInstance.x*BoxInstance.y*BoxInstance.z)).all()#order_by(desc(BoxInstance.weight)).
     #box_instances_ordered.sort(key=weight, reverse=True)
     #.order_by(BoxInstance.weight.desc())
     #box_instances_by_size = BoxInstance.query.order_by()
-    containers_ordered = ContainerInstance.query.filter_by(packing_id=packing_id).order_by(ContainerInstance.weight_remaining).all()
+
     #v = containers_ordered[0].get('x')
     #containers are neot ordered yet
     #b = box_instances_ordered[0]
@@ -319,10 +330,28 @@ def generate_plan(packing_id):
     id_i = 1
     box_locations = []
     #a_l = {"a": 11111, 'b': 2}
-
+    create_container_instance(packing_id)
     for b in box_instances_ordered:
         a = False
-        putbox(containers_ordered[0], b, container_instance_path, box_locations, id_i, a)
+        i = 0
+        containers_ordered = ContainerInstance.query.filter_by(packing_id=packing_id).order_by(ContainerInstance.weight_remaining).all()
+        print(containers_ordered[0].instance_id, file=sys.stderr)
+        print(len(containers_ordered), file=sys.stderr)
+        while a==False:
+            #ujra is kell rendezni mindig a konténerelket
+            if len(containers_ordered) > i:
+                c = containers_ordered[i]
+                filename = 'instance' + str(c.instance_id) + ".pkl"
+                directory = 'containers/containers_' + str(packing_id)
+                container_instance_path = directory + "/" + filename
+            else:
+                print('Hello world!', file=sys.stderr)
+                container_instance_path = create_container_instance(packing_id)
+                containers_ordered = ContainerInstance.query.filter_by(packing_id=packing_id).order_by(ContainerInstance.weight_remaining).all()
+                c = containers_ordered[i]
+            a = putbox(c, b, container_instance_path, box_locations, id_i, a)
+            print(a, file=sys.stderr)
+            i += 1
     l = len(box_locations)
     #for b in box_instances_ordered:
         #global a

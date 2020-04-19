@@ -64,6 +64,7 @@ class ContainerInstance(db.Model):
 
 class BoxInstance(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    #boxid
     name = db.Column(db.String(100), nullable=False)
     x = db.Column(db.Integer, nullable=False)
     y = db.Column(db.Integer, nullable=False)
