@@ -1,13 +1,10 @@
 {% extends "layout.html" %}
 {% block content %}
-    <h1>{{ full_weight }}</h1>
-    <h1>{{ l }}</h1>
-    <h1>{{ box_instances_ordered.y }}</h1>
-    <h1>{{ box_instances_ordered.z }}</h1>
-    <h1>{{ containers_ordered.x }}</h1>
-    <h1>{{ containers_ordered.y }}</h1>
-    <h1>{{ containers_ordered.z }}</h1>
-    <div><a class="btn btn-secondary btn-sm mt-1 mb-1" href="{{ url_for('results', packing_id=packing.id, box_locations=box_locations) }}">Results</a></div>
+    <h2 class="article-title">{{ instance_id }}</h2>
+    <p class="article-content">Number of boxes packed:   {{ number_of_boxes }}</p>
+    <p class="article-content">Weight remaining:   {{ weight_remaining }} %</p>
+    <p class="article-content">Space remaining:   {{ space_remaining }} %</p>
+    <p class="article-content">Space occupied:   {{ 100-space_remaining }} %</p>
     <body>
         <script src="https://threejs.org/build/three.js"></script>
         <script>
@@ -62,6 +59,7 @@
             let materials = [];
             let cuboids = [];
             let colors = [];
+            console.log(pyData);
 
             for(i=0;i<pyData.length;i++){
                 //console.log(pyData[0].z_end-pyData[0].z_start);
@@ -81,6 +79,7 @@
                 console.log(cuboids[i].position.y);
                 console.log(cuboids[i].position.z);
                 scene.add( cuboids[i] );
+                //console.log(pyData.length)
             }
 
 
@@ -109,5 +108,5 @@
 
             animate();
         </script>
-	</body>
+    </body>
 {% endblock content %}

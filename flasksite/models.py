@@ -55,6 +55,7 @@ class ContainerInstance(db.Model):
     z = db.Column(db.Integer, nullable=False)
     weight_remaining = db.Column(db.Integer, nullable=False)
     space_remaining = db.Column(db.Integer, nullable=False)
+    #max_weight = db.Column(db.Integer, nullable=False)#returnbe is
 
     def __repr__(self):
         return f"Container instance('container={self.container_id}', x='{self.x}', y='{self.y}')," \

@@ -33,7 +33,7 @@ def create_container_instance(packing_id):
 	z = container.z
 	container_id = container.id
 	weight_remaining = container.max_weight
-	space_remaining = x*y*z/1000#köbcenti lesz
+	space_remaining = x*y*z#köbcenti lesz
 	container_instance = ContainerInstance(packing_id=packing_id, container_id=container_id, x=x, y=y, z=z,
 										   space_remaining=space_remaining, weight_remaining=weight_remaining)
 	db.session.add(container_instance)
@@ -180,7 +180,8 @@ def create_states(box):
 
 
 def putbox(container, box, container_path, box_locations, id, a):  # box_id
-
+	#mukodo funkcio, tesztelesnel majd be lehet kapcsolni, most meg zavaro
+	#if(container.weight_remaining<box.weight):return False
 
 	states = create_states(box)
 	#print(states)
@@ -230,24 +231,35 @@ def putbox(container, box, container_path, box_locations, id, a):  # box_id
 									#input()
 								#a = {"a":1, 'b':2}
 								location['x_start'] = i
-								location['x_end'] = i + round(s[2]/109)
+
+								print(id, file=sys.stderr)
+								location['x_end'] = i + round(s[2]/10)
 								location['y_start'] = j
 								location['y_end'] = j + round(s[1]/10)
 								location['z_start'] = k
 								location['z_end'] = k + round(s[0]/10)
 								location['id'] = id
 								box_locations.append(location)
+								box.x_start = i
+								box.x_end = i + round(s[2]/10)
+								print("x_start = " + str(box.x_start), file=sys.stderr)
+								box.y_start = j
+								box.y_end = round(s[1]/10)
+								box.z_start = k
+								box.z_end = k + round(s[0]/10)
+								box.container_instance_id = id
+								box.packed = 1
+								container.weight_remaining -= box.weight
+								container.space_remaining -= (box.x*box.y*box.z)
+								db.session.commit()
 								pickle.dump(container_array, open(container_path, "wb"))
-								a = True
 								return True
 				k += 1
-				#print("vege" + str(i) + str(j) + str(k))
-			#input()
+
 			j += 1
 			k = 0
-				#print("ittaj")
+
 		i += 1
 		k = 0
-	#a = {"a":11111, 'b':2}
 	return False
 	#return a

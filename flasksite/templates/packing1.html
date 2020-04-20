@@ -6,11 +6,10 @@
                 <small class="text-muted">{{ packing.date_created.strftime('%Y-%m-%d') }}</small>
             </div>
             <h2 class="article-title"><{{ packing.name }}</h2>
-            <p class="article-content">{{ packing.date_created }}</p>
+            <p class="article-content">{{ packing.name }}</p>
             <div class="container">
-                <div class="column">dewf</div>
                 <div class="article-metadata">
-                    <h2>Containers:</h2>
+                    <h2>Container:</h2>
                     {% for container in packing.containers %}
                         <h2><a class="mr-2" href="{{ url_for('container', container_id=container.id, packing_id=container.packing_id) }}">{{ container.name }}</a></h2>
                     {% endfor %}
@@ -23,7 +22,7 @@
 
                     <a class="btn btn-secondary btn-sm mt-1 mb-1" href="{{ url_for('new_container',packing_id=packing.id) }}">Add container</a>
                      <a class="btn btn-secondary btn-sm mt-1 mb-1" href="{{ url_for('new_box',packing_id=packing.id) }}">Add box</a>
-                     <a class="btn btn-secondary btn-sm mt-1 mb-1" href="{{ url_for('generate_plan', packing_id=packing.id) }}">Generate plan</a>
+                     <a class="btn btn-secondary btn-sm mt-1 mb-1" href="{{ url_for('results', packing_id=packing.id) }}">Results</a>
                 </div>
             </div>
         </div>

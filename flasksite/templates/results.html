@@ -1,0 +1,18 @@
+{% extends "layout.html" %}
+{% block content %}
+    <h2 class="article-title">Results</h2>
+    <p class="article-content">Number of containers used:   {{ containers_used }}</p>
+    <p class="article-content">Number of boxes packed:   {{ boxes_packed }}</p>
+    <p class="article-content">Total weight:   {{ total_weight }}</p>
+    <p class="article-content">Average weight in a container:   {{ average_weight }}</p>
+    <p class="article-content">Average number of boxes:   {{ average_box_n }}</p>
+    {% for container in container_instances %}
+        <article class="media content-section">
+            <div class="media-body">
+                <div class="article-metadata">
+                </div>
+                <h2><a class="article-title" href="{{ url_for('see_instance',packing_id=packing_id, instance_id=container.instance_id) }}">{{ container.instance_id }}</a></h2>
+            </div>
+        </article>
+    {% endfor %}
+{% endblock content %}
