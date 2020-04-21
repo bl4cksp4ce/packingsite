@@ -302,7 +302,7 @@ def results(packing_id):
         db.session.commit()
     generate_boxes(packing_id)
     containers_ordered = ContainerInstance.query.filter_by(packing_id=packing_id).order_by(
-        ContainerInstance.weight_remaining).all()
+        ContainerInstance.space_remaining).all()
     for c in containers_ordered:
         db.session.delete(c)
         db.session.commit()
@@ -331,7 +331,7 @@ def results(packing_id):
                 print('Hello world!', file=sys.stderr)
                 container_instance_path = create_container_instance(packing_id)
                 containers_ordered = ContainerInstance.query.filter_by(packing_id=packing_id).order_by(
-                    ContainerInstance.weight_remaining).all()
+                    ContainerInstance.space_remaining).all()
                 c = containers_ordered[i]
             a = putbox(c, b, container_instance_path, box_locations, c.instance_id, a)
             print(a, file=sys.stderr)
@@ -350,6 +350,7 @@ def results(packing_id):
                            #container_instance=container_instance)
 
     container_instances = ContainerInstance.query.filter_by(packing_id=packing_id).all()
+
     containers_used = len(container_instances)
     box_instances = BoxInstance.query.filter_by(packing_id=packing_id).all()
     boxes_packed = len(box_instances)
@@ -361,10 +362,14 @@ def results(packing_id):
 
     containers_ordered = ContainerInstance.query.filter_by(packing_id=packing_id).order_by(
         ContainerInstance.weight_remaining).all()
+    min_space_c = ContainerInstance.query.filter_by(packing_id=packing_id).order_by(ContainerInstance.space_remaining).first()
+    max_space_c = ContainerInstance.query.filter_by(packing_id=packing_id).order_by(desc(ContainerInstance.space_remaining)).first()
+    min_space = min_space_c.space_remaining/(container.x*container.y*container.z)*100
+    max_space = max_space_c.space_remaining/(container.x*container.y*container.z)*100
 
     return render_template('results.html', container_instances=container_instances, containers_used=containers_used,
                            box_instances=box_instances, boxes_packed=boxes_packed, total_weight=total_weight,
-                           average_weight=average_weight, average_box_n=average_box_n, packing_id=packing_id, containers_ordered=containers_ordered, box_locations=box_locations)
+                           average_weight=average_weight, average_box_n=average_box_n, packing_id=packing_id, containers_ordered=containers_ordered, box_locations=box_locations, min_space=min_space, max_space=max_space)
 
 @app.route("/packing/<int:packing_id>/container_instance/<int:instance_id>")
 def see_instance(packing_id, instance_id):

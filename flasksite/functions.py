@@ -187,9 +187,9 @@ def putbox(container, box, container_path, box_locations, id, a):  # box_id
 	#print(states)
 	with open(container_path, 'rb') as f:
 		container_array = pickle.load(f)
-	cols = container_array.shape[2]
-	rows = container_array.shape[1]
-	z = container_array.shape[0]
+	z = container_array.shape[2]#cols
+	y = container_array.shape[1]#rows
+	x = container_array.shape[0]#z
 
 	#boxi = box.shape[2]  # 120
 	#boxj = box.shape[1]
@@ -208,45 +208,45 @@ def putbox(container, box, container_path, box_locations, id, a):  # box_id
 
 			#print(container)
 
-	while i < cols:
+	while k < z:
 		j = 0
-		while j < rows:
-			while k < z:
+		while j < y:
+			while i < x:
 					#print("belso while" + str(i) + str(j) + str(k))
 					#input("jajjajj")
 				if container_array[i][j][k] == 0:
 					for s in states:
-						if i + round(s[2]/10) <= cols and j + round(s[1]/10) <= rows and k + round(s[0]/10) <= z:  # ilyen kell majd minden forgatáshoz és ami alatta van
+						if k + round(s[2]/10) <= z and j + round(s[1]/10) <= y and i + round(s[0]/10) <= x:  # ilyen kell majd minden forgatáshoz és ami alatta van
 								# itt romlik el
 								#print("eleje" + str(i) + str(j) + str(k))
 
 
-							if np.any(container_array[i:i + round(s[2]/10), [range(j, j + round(s[1]/10))], k:k + round(s[0]/10)]) == False:
+							if np.any(container_array[i:i + round(s[0]/10), [range(j, j + round(s[1]/10))], k:k + round(s[2]/10)]) == False:
 									#print("itt isvvvvvvvvvvvvvvvvv")
 									# itt vegul beadja a kettest oda is, ahova nem fer be
 									#print(container[i:i + s[2], [range(j, j + s[1])], k:k + s[0]])
 									#print("vege" + str(i) + str(j) + str(k))
-								container_array[i:i + round(s[2]/10), [range(j, j + round(s[1]/10))], k:k + round(s[0]/10)] = 2
+								container_array[i:i + round(s[0]/10), [range(j, j + round(s[1]/10))], k:k + round(s[2]/10)] = 2
 									#print(container)
 									#input()
 								#a = {"a":1, 'b':2}
 								location['x_start'] = i
 
 								print(id, file=sys.stderr)
-								location['x_end'] = i + round(s[2]/10)
+								location['x_end'] = i + round(s[0]/10)
 								location['y_start'] = j
 								location['y_end'] = j + round(s[1]/10)
 								location['z_start'] = k
-								location['z_end'] = k + round(s[0]/10)
+								location['z_end'] = k + round(s[2]/10)
 								location['id'] = id
 								box_locations.append(location)
 								box.x_start = i
-								box.x_end = i + round(s[2]/10)
+								box.x_end = i + round(s[0]/10)
 								print("x_start = " + str(box.x_start), file=sys.stderr)
 								box.y_start = j
 								box.y_end = round(s[1]/10)
 								box.z_start = k
-								box.z_end = k + round(s[0]/10)
+								box.z_end = k + round(s[2]/10)
 								box.container_instance_id = id
 								box.packed = 1
 								container.weight_remaining -= box.weight
@@ -254,12 +254,12 @@ def putbox(container, box, container_path, box_locations, id, a):  # box_id
 								db.session.commit()
 								pickle.dump(container_array, open(container_path, "wb"))
 								return True
-				k += 1
+				i += 1
 
 			j += 1
-			k = 0
+			i = 0
 
-		i += 1
-		k = 0
+		k += 1
+		i = 0
 	return False
 	#return a
