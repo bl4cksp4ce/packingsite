@@ -1,0 +1,25 @@
+{
+  "name": "flasksite",
+  "version": "1.0.0",
+  "description": "container packing",
+  "main": "index.js",
+  "dependencies": {
+    "orbit-controls-es6": "^2.0.1",
+    "three": "^0.115.0",
+    "three-orbitcontrols-ts": "^0.1.2"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "tst"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bl4cksp4ce/packingsite.git"
+  },
+  "author": "Judit",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/bl4cksp4ce/packingsite/issues"
+  },
+  "homepage": "https://github.com/bl4cksp4ce/packingsite#readme"
+}

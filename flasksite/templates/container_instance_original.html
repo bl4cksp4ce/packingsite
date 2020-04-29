@@ -6,7 +6,12 @@
     <p class="article-content">Space remaining:   {{ space_remaining }} %</p>
     <p class="article-content">Space occupied:   {{ 100-space_remaining }} %</p>
     <body>
-        <script src="https://threejs.org/build/three.js"></script>
+        <script src="http://threejs.org/build/three.min.js"></script>
+        <script src="http://threejs.org/examples/js/loaders/STLLoader.js"></script>
+        <script src="{{ url_for('static', filename='node_modules/three/build/three.js')}}"></script>
+        <script type=module src="{{ url_for('static', filename='node_modules/three/examples/jsm/loaders/OBJLoader.js')}}"></script>
+        <script type=module src="{{ url_for('static', filename='node_modules/requirejs/require.js')}}"></script>
+        <script type=module src="https://unpkg.com/three@0.85.0/examples/js/controls/OrbitControls.js"></script>
         <script>
 
             function getRandomColor() {
@@ -17,6 +22,12 @@
                 }
                 return color;
             }
+            //define('three', ['./the/actual/three.js'], function ( THREE ) {
+                //window.THREE = THREE;
+                //return THREE;
+            //});
+            //var THREE = require('three')
+            //var OrbitControls = require('three-orbit-controls')(THREE);
             var pyData = JSON.parse('{{box_locations | tojson | safe}}');
 
             var x_c = '{{ container_instance.x }}'/10;
@@ -45,7 +56,17 @@
             var renderer = new THREE.WebGLRenderer();
             renderer.setSize( window.innerWidth, window.innerHeight );
             document.body.appendChild( renderer.domElement );
+            var cameraControls = new THREE.OrbitControls(this.camera, this.renderer.domElement);
+            //var controls = new OrbitControls(camera, renderer.domElement);
+            //controls.enableDamping = true; // an animation loop is required when either damping or auto-rotation are enabled
+            //controls.dampingFactor = 0.05;
 
+            //controls.screenSpacePanning = false;
+
+            //controls.minDistance = 100;
+            //controls.maxDistance = 500;
+
+            //controls.maxPolarAngle = Math.PI / 2;
             var geometry = new THREE.BoxGeometry(pyData.length,6, pyData.length);
             var material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
             var cube = new THREE.Mesh( geometry, material );
@@ -131,7 +152,7 @@
                 //cube.rotation.y += 0.01;
                 //cube_2.rotation.x += 0.01;
                 //cube_2.rotation.y += 0.01;
-
+                //controls.update();
                 renderer.render( scene, camera );
             };
 

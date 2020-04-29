@@ -1,5 +1,11 @@
 {% extends "layout.html" %}
 {% block content %}
     <h1>About P  ag e</h1>
-    <body><script type="text/javascript" src="/scripts/main.js"></script></body>
+    <body>
+        <script type=module src="https://threejs.org/build/three.js"></script>
+
+        <script src="{{ url_for('static', filename='node_modules/three/build/three.js')}}"></script>
+        <script type=module src="{{ url_for('static', filename='node_modules/three/examples/jsm/controls/OrbitControls.js')}}"></script>
+        <script type=module src="{{url_for('static',filename='e.js')}}"></script>
+    </body>
 {% endblock content %}

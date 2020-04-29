@@ -10,12 +10,14 @@ import mpld3
 import random
 from PIL import Image
 from flask import Flask, render_template, url_for, flash, redirect, request, abort, jsonify
-from flasksite import app, db, bcrypt
+from flasksite import app, db, bcrypt, mail
 from flasksite.functions import generate_boxes, putbox, create_container_instance
-from flasksite.forms import RegistrationForm, LoginForm, UpdateAccountForm, BoxForm, PostForm, PackingForm, ContainerForm
+from flasksite.forms import (RegistrationForm, LoginForm, UpdateAccountForm, BoxForm,
+                             PostForm, PackingForm, ContainerForm, RequestResetForm, ResetPasswordForm)
 from flasksite.models import User, Post, Container, Packing, Box, ContainerInstance, BoxInstance
 from flask_login import login_user, current_user, logout_user, login_required
 from sqlalchemy import desc
+from flask_mail import Message
 
 
 @app.route('/') #decorator
@@ -312,7 +314,7 @@ def results(packing_id):
         desc(BoxInstance.x * BoxInstance.y * BoxInstance.z)).all()  # order_by(desc(BoxInstance.weight)).
 
     box_locations = []
-    create_container_instance(packing_id)
+    #create_container_instance(packing_id)
     for b in box_instances_ordered:
         a = False
         i = 0
@@ -355,21 +357,36 @@ def results(packing_id):
     box_instances = BoxInstance.query.filter_by(packing_id=packing_id).all()
     boxes_packed = len(box_instances)
     total_weight = 0
+    total_space = 0
+    for c in containers_ordered: total_space += c.space_remaining;
     for b in box_instances:
         total_weight += b.weight
     average_weight = total_weight/containers_used
     average_box_n = boxes_packed/containers_used
+    average_space = total_space/containers_used
 
     containers_ordered = ContainerInstance.query.filter_by(packing_id=packing_id).order_by(
         ContainerInstance.weight_remaining).all()
+    all_weight = 0
+    for c in containers_ordered: all_weight += c.weight_remaining
+
     min_space_c = ContainerInstance.query.filter_by(packing_id=packing_id).order_by(ContainerInstance.space_remaining).first()
     max_space_c = ContainerInstance.query.filter_by(packing_id=packing_id).order_by(desc(ContainerInstance.space_remaining)).first()
     min_space = min_space_c.space_remaining/(container.x*container.y*container.z)*100
     max_space = max_space_c.space_remaining/(container.x*container.y*container.z)*100
+    min_weight_c = ContainerInstance.query.filter_by(packing_id=packing_id).order_by(ContainerInstance.weight_remaining).first()
+    max_weight_c = ContainerInstance.query.filter_by(packing_id=packing_id).order_by(desc(ContainerInstance.weight_remaining)).first()
+
+    min_weight = min_weight_c.weight_remaining
+    max_weight = max_weight_c.weight_remaining
+
+
 
     return render_template('results.html', container_instances=container_instances, containers_used=containers_used,
                            box_instances=box_instances, boxes_packed=boxes_packed, total_weight=total_weight,
-                           average_weight=average_weight, average_box_n=average_box_n, packing_id=packing_id, containers_ordered=containers_ordered, box_locations=box_locations, min_space=min_space, max_space=max_space)
+                           average_weight=average_weight, average_box_n=average_box_n, packing_id=packing_id,
+                           containers_ordered=containers_ordered, box_locations=box_locations, min_space=min_space,
+                           max_space=max_space, max_weight=max_weight, min_weight=min_weight, average_space=average_space)
 
 @app.route("/packing/<int:packing_id>/container_instance/<int:instance_id>")
 def see_instance(packing_id, instance_id):
@@ -388,7 +405,7 @@ def see_instance(packing_id, instance_id):
                 "z_start": 0,
                 "z_end": 0,
                 "id": 0}
-
+    box_ids = []
     for i in range(len(box_instances)):
         box_locations[i] = {
             "x_start": box_instances[i].x_start,
@@ -397,8 +414,10 @@ def see_instance(packing_id, instance_id):
             "y_end": box_instances[i].y_end,
             "z_start": box_instances[i].z_start,
             "z_end": box_instances[i].z_end,
-            "id": box_instances[i].container_instance_id
+            "id": box_instances[i].container_instance_id,
+            "box_id": box_instances[i].box_id
         }
+        box_ids.append(box_instances[i].box_id)
         print("hello", file=sys.stderr)
         #location["x_start"] = box_instances[i].x_start
         print(location["x_start"], file=sys.stderr)
@@ -409,17 +428,25 @@ def see_instance(packing_id, instance_id):
         #location['y_end'] = box_instances[i].y_end
         #location['z_start'] = box_instances[i].z_start
         print(location["z_start"], file=sys.stderr)
-        #location['z_end'] = box_instances[i].z_end
-        #location['id'] = box_instances[i].container_instance_id
-        #box_locations.append(location)
-    #weight_pc = 10*1-(container_instance.weight_remaining/container_instance.max_weight)
 
+    #weight_pc = 10*1-(container_instance.weight_remaining/container_instance.max_weight)
+    box_ids = list(dict.fromkeys(box_ids))
+    box_colors = [dict() for x in range(len(box_ids))]
+    for b_id in range(len(box_ids)):
+        color = "%06x" % random.randint(0, 0xFFFFFF)
+        s_color = "#" + str(color)
+        print(color, file=sys.stderr)
+        box_colors[b_id] = {"id": box_ids[b_id],
+                            "color:": s_color
+                            }
     weight_remaining = container_instance.weight_remaining
     space_remaining = container_instance.space_remaining/(container_instance.x*container_instance.y*container_instance.z)*100
     print(container_instance.x, file=sys.stderr)
 
 
-    return render_template('container_instance.html',box_locations=box_locations, container_instance=container_instance, number_of_boxes=number_of_boxes, instance_id=instance_id, weight_remaining=weight_remaining, space_remaining=space_remaining)
+    return render_template('container_instance_original.html',box_locations=box_locations, container_instance=container_instance,
+                           number_of_boxes=number_of_boxes, instance_id=instance_id, weight_remaining=weight_remaining,
+                           space_remaining=space_remaining, box_colors=box_colors)
 
 
 @app.route("/packing1/<int:packing_id>/plan")
@@ -437,7 +464,7 @@ def generate_plan(packing_id):
     z = container.z
     name = container.name
     container_instance_id = 0 #ezt kell növelni új konténernél
-    array_boxes = np.zeros((int(x/10), int(y/10), int(z/10)), dtype='int')
+    array_boxes = np.zeros((int(x / 10), int(y / 10), int(z / 10)), dtype='int')
     #id = random.randint(1, 20000)
     filename = "instance" + str(container_instance_id) + ".pkl"
     directory = 'containers/containers_' + str(packing_id)
@@ -483,7 +510,7 @@ def generate_plan(packing_id):
     id_i = 1
     box_locations = []
     #a_l = {"a": 11111, 'b': 2}
-    create_container_instance(packing_id)
+    #create_container_instance(packing_id)
     for b in box_instances_ordered:
         a = False
         i = 0
@@ -621,4 +648,46 @@ def generate_plan(packing_id):
     box_locations_1 = [box for box in box_locations if box['id'] == containers_ordered[0].instance_id]
 
     return render_template('plan.html', packing=packing, full_weight=full_weight, box_locations=box_locations_1, box_instances_ordered=box_instances_ordered, containers_ordered=containers_ordered, l=l, container_instance=container_instance)
+
+def send_reset_email(user):
+    token = user.get_reset_token()
+    msg = Message('Password Reset Request', sender='brutalistbp@gmail.com',
+                  recipients=['giantoctopus216@gmail.com'])#[user.email])
+    msg.body = f''' To reset your password, visit the following link:
+{url_for('reset_token', token=token, _external=True)}
+
+If xou did not make this request then ignore this email and no changes will be made
+'''
+    mail.send(msg)
+
+@app.route("/reset_password", methods=['GET', 'POST'])
+def reset_request():
+    from flasksite import mail
+    if current_user.is_authenticated:
+        return redirect(url_for('home'))
+    form = RequestResetForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(email=form.email.data).first()
+        send_reset_email(user)
+        flash('Email with reset link sent.', 'info')
+        return redirect(url_for('login'))
+    return render_template('reset_request.html', title='Reset Password', form=form)
+
+@app.route("/reset_password/<token>", methods=['GET', 'POST'])
+def reset_token(token):
+    if current_user.is_authenticated:
+        return redirect(url_for('home'))
+    user = User.verify_reset_token(token)
+    if not user:
+        flash('That is an invalid or expired token!', 'warning')
+        return redirect(url_for('reset_request'))
+    form = ResetPasswordForm()
+    if form.validate_on_submit():
+        hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
+        user.password = hashed_password
+        db.session.commit()
+        flash('Your password has been updated! Your are able to log in!', 'success')
+        return redirect(url_for('login'))
+    return render_template('reset_token.html', title='Reset Password', form=form)
+
 

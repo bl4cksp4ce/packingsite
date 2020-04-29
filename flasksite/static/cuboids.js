@@ -1,0 +1,130 @@
+function getRandomColor() {
+    var letters = '0123456789ABCDEF';
+    var color = '#';
+    for (var i = 0; i < 6; i++) {
+        color += letters[Math.floor(Math.random() * 16)];
+    }
+    return color;
+}
+//var THREE = require('three')
+//var OrbitControls = require('three-orbit-controls')(THREE);
+//var pyData = JSON.parse('{{box_locations | tojson | safe}}');
+
+var x_c = '{{ container_instance.x }}'/10;
+var y_c = '{{ container_instance.y }}'/10;
+var z_c = '{{ container_instance.z }}'/10;
+console.log(x_c, y_c, z_c);
+var geometry_c = new THREE.BoxGeometry(x_c,y_c,z_c);
+var material_c = new THREE.MeshBasicMaterial( { color: 0x00ffff, opacity:0.3, transparent:true});
+var cube_c = new THREE.Mesh(geometry_c, material_c);
+
+var edges = new THREE.EdgesGeometry( geometry_c );
+var line = new THREE.LineSegments( edges, new THREE.LineBasicMaterial( { color: 0xffffff } ) );
+
+
+
+var x = '{{ dict.x }}';
+var y = '{{ dict.y }}';
+var z = '{{ dict.z }}';
+var scene = new THREE.Scene();
+var camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 1000 );
+
+//scene.add(cube_c);
+scene.add(line);
+cube_c.position.set(x_c/2, y_c/2, z_c/2);
+line.position.set(x_c/2, y_c/2, z_c/2);
+
+var renderer = new THREE.WebGLRenderer();
+renderer.setSize( window.innerWidth, window.innerHeight );
+document.body.appendChild( renderer.domElement );
+var controls = new THREE.OrbitControls(camera, renderer.domElement);
+var geometry = new THREE.BoxGeometry(pyData.length,6, pyData.length);
+var material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
+var cube = new THREE.Mesh( geometry, material );
+
+
+//scene.add( cube_2 );
+var group = new THREE.Group();
+
+
+let geometries = [];
+let materials = [];
+let cuboids = [];
+let colors = [];
+let edges_b = [];
+let lines = [];
+console.log(pyData);
+let box_ids = [];
+for(k=0;k<pyData.length;k++){
+    box_ids[k] = pyData[k].box_id;
+}
+console.log(box_ids);
+set_box = Array.from(new Set(box_ids));
+
+console.log(set_box);
+let color_id = []
+for(l=0;l<set_box.length;l++){
+    color_id[l] = {id : set_box[l],
+                   color : getRandomColor()};
+}
+console.log(color_id)
+for(i=0;i<pyData.length;i++){
+
+    geometries[i] = new THREE.BoxGeometry(pyData[i].x_end-pyData[i].x_start, pyData[i].y_end-pyData[i].y_start, pyData[i].z_end-pyData[i].z_start);
+
+    for(j=0;j<color_id.length;j++)
+        {
+            console.log(color_id[j].color)
+            console.log(color_id[j].id)
+            console.log(pyData[i].id)
+            if(color_id[j].id == pyData[i].box_id){ colors[i] = color_id[j].color; console.log("idejon");}
+        }
+    //colors[i] = getRandomColor();
+    materials[i] = new THREE.MeshBasicMaterial( { color: colors[i] } );
+
+    edges_b[i] = new THREE.EdgesGeometry( geometries[i] );
+    lines[i] = new THREE.LineSegments( edges_b[i], new THREE.LineBasicMaterial( { color: 0xee00ee } ) );
+
+    lines[i].position.x = pyData[i].x_start + (pyData[i].x_end-pyData[i].x_start)/2;
+    lines[i].position.y = pyData[i].y_start + (pyData[i].y_end-pyData[i].y_start)/2;
+    lines[i].position.z = pyData[i].z_start + (pyData[i].z_end-pyData[i].z_start)/2;
+
+    cuboids[i] = new THREE.Mesh( geometries[i], materials[i] );
+    cuboids[i].position.x = pyData[i].x_start + (pyData[i].x_end-pyData[i].x_start)/2;
+    cuboids[i].position.y = pyData[i].y_start + (pyData[i].y_end-pyData[i].y_start)/2;
+    cuboids[i].position.z = pyData[i].z_start + (pyData[i].z_end-pyData[i].z_start)/2;
+
+
+    console.log(cuboids[i].position.x);
+    console.log(cuboids[i].position.y);
+    console.log(cuboids[i].position.z);
+    scene.add( cuboids[i] );
+    scene.add( lines[i] );
+
+}
+
+
+
+//scene.add( group );
+
+camera.position.z = 1.5*x_c;
+//camera.rotation.z = 3;
+//camera.rotation.x = 3;
+camera.position.y = 1.5*y_c;
+camera.position.x = 1.5*z_c;
+camera.lookAt(new THREE.Vector3(0,0,0));
+var animate = function () {
+    requestAnimationFrame( animate );
+    //for(i=0;i<cuboids.length;i+=2){
+        //cuboids[i].rotation.x +=0.01;
+        //cuboids[i].rotation.y +=0.01;
+    //}
+    //cube.rotation.x += s;
+    //cube.rotation.y += 0.01;
+    //cube_2.rotation.x += 0.01;
+    //cube_2.rotation.y += 0.01;
+
+    renderer.render( scene, camera );
+};
+
+animate();

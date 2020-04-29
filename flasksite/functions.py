@@ -14,7 +14,7 @@ def generate_boxes(packing_id):
 	#packing = Packing.query.get_or_404(packing_id)
 	for b in boxes:#itt a quantityt kell nézni, ami még nincs a box modellben és annyi kell belőle, most mindből csak egyet csinál, belül lehet még egy for ami nullától a quantityig megy
 		for i in range(b.quantity):
-			box_instance = BoxInstance(name=b.name, x=b.x, y=b.y, z=b.z, packed=0, weight=b.weight,
+			box_instance = BoxInstance(name=b.name, box_id = b.id, x=b.x, y=b.y, z=b.z, packed=0, weight=b.weight,
 				  packing_id=packing_id)
 			db.session.add(box_instance)
 			db.session.commit()
@@ -33,9 +33,10 @@ def create_container_instance(packing_id):
 	z = container.z
 	container_id = container.id
 	weight_remaining = container.max_weight
+	max_weight = container.max_weight
 	space_remaining = x*y*z#köbcenti lesz
 	container_instance = ContainerInstance(packing_id=packing_id, container_id=container_id, x=x, y=y, z=z,
-										   space_remaining=space_remaining, weight_remaining=weight_remaining)
+										   space_remaining=space_remaining, weight_remaining=weight_remaining, max_weight=max_weight)
 	db.session.add(container_instance)
 	db.session.commit()
 	#name = container.name
@@ -145,37 +146,50 @@ def create_states(box):
 	box_s = [0, 0, 0]
 	#box.shape[2]#120
 	#boxj = box.shape[1]
+	i = 0
 	#boxk = box.shape[0]
+	states.append([box.x, box.y, box.z])
+	i += 1
 	box_s[0] = box.x
 	box_s[1] = box.y
 	box_s[2] = box.z
 
-	states.append(box_s)
+	#states.append(box_s)
+	states.append([box.x, box.z, box.y])
+	i += 1
 	box_s[0] = box.x
 	box_s[1] = box.z
 	box_s[2] = box.y
 
-	states.append(box_s)
+	#states.append(box_s)
+	states.append([box.y, box.x, box.z])
+	i += 1
 	box_s[0] = box.y
 	box_s[1] = box.x
 	box_s[2] = box.z
 
-	states.append(box_s)
+	#states.append(box_s)
+	states.append([box.y, box.z, box.x])
+	i += 1
 	box_s[0] = box.y
 	box_s[1] = box.z
 	box_s[2] = box.x
 
-	states.append(box_s)
+	#states.append(box_s)
+	states.append([box.z, box.x, box.y])
+	i += 1
 	box_s[0] = box.z
 	box_s[1] = box.x
 	box_s[2] = box.y
 
-	states.append(box_s)
+	#states.append(box_s)
+	states.append([box.z, box.y, box.x])
+	#i += 1
 	box_s[0] = box.z
 	box_s[1] = box.y
 	box_s[2] = box.x
 
-	states.append(box_s)
+	#states.append(box_s)
 	return states
 
 
@@ -216,6 +230,7 @@ def putbox(container, box, container_path, box_locations, id, a):  # box_id
 					#input("jajjajj")
 				if container_array[i][j][k] == 0:
 					for s in states:
+						print(s, file=sys.stderr)
 						if k + round(s[2]/10) <= z and j + round(s[1]/10) <= y and i + round(s[0]/10) <= x:  # ilyen kell majd minden forgatáshoz és ami alatta van
 								# itt romlik el
 								#print("eleje" + str(i) + str(j) + str(k))

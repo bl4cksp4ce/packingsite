@@ -6,8 +6,11 @@
     <p class="article-content">Total weight:   {{ total_weight }} kg</p>
     <p class="article-content">Average weight in a container:   {{ average_weight }} kg</p>
     <p class="article-content">Average number of boxes:   {{ average_box_n }}</p>
+    <p class="article-content">Average space remaining:   {{ average_space }}</p>
     <p class="article-content">Minimum space remaining:   {{ min_space }} %</p>
     <p class="article-content">Maximum space remaining:   {{ max_space }} %</p>
+    <p class="article-content">Maximum weight remaining :   {{ max_weight }} kg</p>
+    <p class="article-content">Minimum weight remaining :   {{ min_weight }} kg</p>
     {% for container in container_instances %}
         <article class="media content-section">
             <div class="media-body">
