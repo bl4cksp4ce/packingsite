@@ -1,0 +1,14 @@
+{% extends "layout.html" %}
+{% block content %}
+
+    <body>
+        <h1>Upload Boxes</h1>
+        <form method="POST" action="/excel/packing_id" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="inputFile">File input</label>
+                <input type="file" name="inputFile">
+            </div>
+            <button type="submit" class="btn btn-default">Submit</button>
+        </form>
+    </body>
+{% endblock content %}
