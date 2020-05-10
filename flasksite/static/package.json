@@ -12,6 +12,7 @@
     "react": "^16.13.1",
     "requirejs": "^2.3.6",
     "three": "^0.115.0",
-    "three-orbit-controls": "^82.1.0"
+    "three-orbit-controls": "^82.1.0",
+    "three-orbitcontrols": "^2.110.3"
   }
 }

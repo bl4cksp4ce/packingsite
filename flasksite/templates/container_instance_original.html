@@ -9,9 +9,12 @@
         <script src="http://threejs.org/build/three.min.js"></script>
         <script src="http://threejs.org/examples/js/loaders/STLLoader.js"></script>
         <script src="{{ url_for('static', filename='node_modules/three/build/three.js')}}"></script>
+        <script src="{{ url_for('static', filename='OrbitControls.js')}}"></script>
         <script type=module src="{{ url_for('static', filename='node_modules/three/examples/jsm/loaders/OBJLoader.js')}}"></script>
+        <script type=module src="{{ url_for('static', filename='node_modules/three-orbitcontrols/OrbitControls.js')}}"></script>
         <script type=module src="{{ url_for('static', filename='node_modules/requirejs/require.js')}}"></script>
         <script type=module src="https://unpkg.com/three@0.85.0/examples/js/controls/OrbitControls.js"></script>
+
         <script>
 
             function getRandomColor() {
@@ -29,7 +32,7 @@
             //var THREE = require('three')
             //var OrbitControls = require('three-orbit-controls')(THREE);
             var pyData = JSON.parse('{{box_locations | tojson | safe}}');
-
+            console.log(pyData);
             var x_c = '{{ container_instance.x }}'/10;
             var y_c = '{{ container_instance.y }}'/10;
             var z_c = '{{ container_instance.z }}'/10;
@@ -43,9 +46,9 @@
 
 
 
-            var x = '{{ dict.x }}';
-            var y = '{{ dict.y }}';
-            var z = '{{ dict.z }}';
+            //var x = '{{ dict.x }}';
+            //var y = '{{ dict.y }}';
+            //var z = '{{ dict.z }}';
             var scene = new THREE.Scene();
             var camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 1000 );
             //scene.add(cube_c);
@@ -56,7 +59,7 @@
             var renderer = new THREE.WebGLRenderer();
             renderer.setSize( window.innerWidth, window.innerHeight );
             document.body.appendChild( renderer.domElement );
-            var cameraControls = new THREE.OrbitControls(this.camera, this.renderer.domElement);
+            //var cameraControls = OrbitControls(this.camera, this.renderer.domElement);
             //var controls = new OrbitControls(camera, renderer.domElement);
             //controls.enableDamping = true; // an animation loop is required when either damping or auto-rotation are enabled
             //controls.dampingFactor = 0.05;
@@ -69,11 +72,11 @@
             //controls.maxPolarAngle = Math.PI / 2;
             var geometry = new THREE.BoxGeometry(pyData.length,6, pyData.length);
             var material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
-            var cube = new THREE.Mesh( geometry, material );
+            //var cube = new THREE.Mesh( geometry, material );
 
 
             //scene.add( cube_2 );
-            var group = new THREE.Group();
+            //var group = new THREE.Group();
 
 
             let geometries = [];
@@ -100,6 +103,8 @@
             for(i=0;i<pyData.length;i++){
 
                 geometries[i] = new THREE.BoxGeometry(pyData[i].x_end-pyData[i].x_start, pyData[i].y_end-pyData[i].y_start, pyData[i].z_end-pyData[i].z_start);
+                console.log(pyData[i].z_end-pyData[i].z_start);
+                console.log("geo");
 
                 for(j=0;j<color_id.length;j++)
                     {
@@ -124,9 +129,9 @@
                 cuboids[i].position.z = pyData[i].z_start + (pyData[i].z_end-pyData[i].z_start)/2;
 
 
-                console.log(cuboids[i].position.x);
-                console.log(cuboids[i].position.y);
-                console.log(cuboids[i].position.z);
+                console.log(lines[i].position.x);
+                console.log(lines[i].position.y);
+                console.log(lines[i].position.z);
                 scene.add( cuboids[i] );
                 scene.add( lines[i] );
 
