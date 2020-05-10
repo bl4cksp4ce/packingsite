@@ -5,6 +5,15 @@
     <p class="article-content">Weight remaining:   {{ weight_remaining }} kg</p>
     <p class="article-content">Space remaining:   {{ space_remaining }} %</p>
     <p class="article-content">Space occupied:   {{ 100-space_remaining }} %</p>
+    {% for box in boxes_2 %}
+        <article class="media content-section">
+            <div class="media-body">
+                <div class="article-metadata">
+                </div>
+                <h2><a class="article-title">{{ box }}</a></h2>
+            </div>
+        </article>
+    {% endfor %}
     <body>
         <script src="http://threejs.org/build/three.min.js"></script>
         <script src="http://threejs.org/examples/js/loaders/STLLoader.js"></script>

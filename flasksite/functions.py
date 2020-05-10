@@ -15,7 +15,7 @@ def generate_boxes(packing_id):
 	for b in boxes:#itt a quantityt kell nézni, ami még nincs a box modellben és annyi kell belőle, most mindből csak egyet csinál, belül lehet még egy for ami nullától a quantityig megy
 		for i in range(b.quantity):
 			box_instance = BoxInstance(name=b.name, box_id = b.id, x=b.x, y=b.y, z=b.z, packed=0, weight=b.weight,
-				  packing_id=packing_id)
+				  packing_id=packing_id)#todo hozzáadni a forgatási változókat, lehet azok kellenek
 			db.session.add(box_instance)
 			db.session.commit()
 			a +=1
@@ -41,7 +41,7 @@ def create_container_instance(packing_id):
 	db.session.commit()
 	#name = container.name
 	container_instance_id = container_instance.instance_id
-	print(container_instance.instance_id, file=sys.stderr)
+	#print(container_instance.instance_id, file=sys.stderr)
 	array_boxes = np.zeros((int(x / 10), int(y / 10), int(z / 10)), dtype='int') #milliméter
 	filename = "instance" + str(container_instance_id) + ".pkl"
 	directory = 'containers/containers_' + str(packing_id)
@@ -142,6 +142,7 @@ def create_container_instance(packing_id):
 		k = 0'''
 def create_states(box):
 	states = []
+	#todo maybe get rid of the duplicated states, also check whether the side is banned
 	#box.states[s][name] = "yzx"
 	box_s = [0, 0, 0]
 	#box.shape[2]#120
@@ -189,13 +190,26 @@ def create_states(box):
 	box_s[1] = box.y
 	box_s[2] = box.x
 
+	#egyedi állapotok csak, így gyorsul
+	for s in range(len(states)):
+		for b in range(len(states)-1-s):
+			if states[s] == states[s+b]:
+				states.pop(s+b)
+				break
+
+
 	#states.append(box_s)
+	print(len(states), file=sys.stderr)
+	print("rovid", file=sys.stderr)
+	np.vstack(set(map(tuple, states)))
+	print(len(states), file=sys.stderr)
 	return states
 
 
-def putbox(container, box, container_path, box_locations, id, a):  # box_id
+def putbox(container, box, container_path, id):  # box_id
 	#mukodo funkcio, tesztelesnel majd be lehet kapcsolni, most meg zavaro
 	#if(container.weight_remaining<box.weight):return False
+	#todo space remaining ellenőrzése még itt
 
 	states = create_states(box)
 	#print(states)
@@ -212,13 +226,13 @@ def putbox(container, box, container_path, box_locations, id, a):  # box_id
 	i = 0
 	j = 0
 	k = 0
-	location = {"x_start": 0,
-				"x_end": 0,
-				"y_start": 0,
-				"y_end": 0,
-				"z_start": 0,
-				"z_end": 0,
-				"id": 0 }
+	#location = {"x_start": 0,
+	#			"x_end": 0,
+	#			"y_start": 0,
+	#			"y_end": 0,
+	#			"z_start": 0,
+	#			"z_end": 0,
+	#			"id": 0 }
 
 			#print(container)
 
@@ -230,10 +244,8 @@ def putbox(container, box, container_path, box_locations, id, a):  # box_id
 					#input("jajjajj")
 				if container_array[i][j][k] == 0:
 					for s in states:
-						print(s, file=sys.stderr)
+						#print(s, file=sys.stderr)
 						if k + round(s[2]/10) <= z and j + round(s[1]/10) <= y and i + round(s[0]/10) <= x:  # ilyen kell majd minden forgatáshoz és ami alatta van
-								# itt romlik el
-								#print("eleje" + str(i) + str(j) + str(k))
 
 
 							if np.any(container_array[i:i + round(s[0]/10), [range(j, j + round(s[1]/10))], k:k + round(s[2]/10)]) == False:
@@ -245,21 +257,21 @@ def putbox(container, box, container_path, box_locations, id, a):  # box_id
 									#print(container)
 									#input()
 								#a = {"a":1, 'b':2}
-								location['x_start'] = i
+								#location['x_start'] = i
 
 								print(id, file=sys.stderr)
-								location['x_end'] = i + round(s[0]/10)
-								location['y_start'] = j
-								location['y_end'] = j + round(s[1]/10)
-								location['z_start'] = k
-								location['z_end'] = k + round(s[2]/10)
-								location['id'] = id
-								box_locations.append(location)
+								#location['x_end'] = i + round(s[0]/10)#todo nem biztos hogy ezek kellenek ide
+								#location['y_start'] = j
+								#location['y_end'] = j + round(s[1]/10)
+								#location['z_start'] = k
+								#location['z_end'] = k + round(s[2]/10)
+								#location['id'] = id
+								#box_locations.append(location)
 								box.x_start = i
 								box.x_end = i + round(s[0]/10)
 								print("x_start = " + str(box.x_start), file=sys.stderr)
 								box.y_start = j
-								box.y_end = round(s[1]/10)
+								box.y_end = j + round(s[1]/10)
 								box.z_start = k
 								box.z_end = k + round(s[2]/10)
 								box.container_instance_id = id

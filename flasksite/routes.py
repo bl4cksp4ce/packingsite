@@ -13,11 +13,13 @@ from flask import Flask, render_template, url_for, flash, redirect, request, abo
 from flasksite import app, db, bcrypt, mail
 from flasksite.functions import generate_boxes, putbox, create_container_instance
 from flasksite.forms import (RegistrationForm, LoginForm, UpdateAccountForm, BoxForm,
-                             PostForm, PackingForm, ContainerForm, RequestResetForm, ResetPasswordForm)
+                             PostForm, PackingForm, ContainerForm, RequestResetForm,
+                             ResetPasswordForm)
 from flasksite.models import User, Post, Container, Packing, Box, ContainerInstance, BoxInstance
 from flask_login import login_user, current_user, logout_user, login_required
 from sqlalchemy import desc
 from flask_mail import Message
+from openpyxl import load_workbook, Workbook
 
 
 @app.route('/') #decorator
@@ -77,9 +79,11 @@ def save_picture(form_picture):
     i.save(picture_path)
     return picture_fn
 
-#def new_container_instance(container_id):
-    #instance=0
-    #return instance
+#@app.route("/excel/<int:packing_id>", methods=['POST', 'GET'])
+#@login_required
+#def excel_boxes(packing_id):
+#    file = request.files['inputFile']
+#    return file.filename
 
 
 @app.route("/account", methods=['GET', 'POST'])
@@ -93,7 +97,7 @@ def account():
         current_user.username = form.username.data
         current_user.email = form.email.data
         db.session.commit()
-        flash('Your account has benn updated!', 'success')
+        flash('Your account has been updated!', 'success')
         return redirect(url_for('account'))
     elif request.method == 'GET':
         form.username.data = current_user.username
@@ -269,16 +273,16 @@ def packing(packing_id):
 
 @app.route("/packing1/<int:packing_id>/results")
 def results(packing_id):
-    packing = Packing.query.get_or_404(packing_id)
+    #packing = Packing.query.get_or_404(packing_id)
     container = Container.query.filter_by(packing_id=packing_id).first()
-    boxes = Box.query.filter_by(packing_id=packing_id).all()
+    #boxes = Box.query.filter_by(packing_id=packing_id).all()
 
-    container_type = container.id
+    #container_type = container.id
     packing_id = packing_id
     x = container.x
     y = container.y
     z = container.z
-    name = container.name
+    #name = container.name
     container_instance_id = 0  # ezt kell növelni új konténernél
     array_boxes = np.zeros((int(x / 10), int(y / 10), int(z / 10)), dtype='int')
     # id = random.randint(1, 20000)
@@ -292,8 +296,8 @@ def results(packing_id):
     path = directory + "/" + filename
     pickle.dump(array_boxes, open(path, "wb"))  # létrejön példányoításkor, címeiket valahol tárolni kéne
 
-    data_p = pickle.load(open(path, "rb"))
-    full_weight = data_p[1][1][1]
+    #data_p = pickle.load(open(path, "rb"))
+    #full_weight = data_p[1][1][1]
 
     box_instances = BoxInstance.query.filter_by(packing_id=packing_id).all()
     # ha masnak is lehet ilyen packing id, akkor lehet baj
@@ -313,7 +317,7 @@ def results(packing_id):
     box_instances_ordered = BoxInstance.query.filter_by(packing_id=packing_id).order_by(
         desc(BoxInstance.x * BoxInstance.y * BoxInstance.z)).all()  # order_by(desc(BoxInstance.weight)).
 
-    box_locations = []
+    #box_locations = []
     #create_container_instance(packing_id)
     for b in box_instances_ordered:
         a = False
@@ -335,15 +339,15 @@ def results(packing_id):
                 containers_ordered = ContainerInstance.query.filter_by(packing_id=packing_id).order_by(
                     ContainerInstance.space_remaining).all()
                 c = containers_ordered[i]
-            a = putbox(c, b, container_instance_path, box_locations, c.instance_id, a)
+            a = putbox(c, b, container_instance_path, c.instance_id)
             print(a, file=sys.stderr)
             i += 1
-    l = len(box_locations)
+    #l = len(box_locations)
 
 
 
 
-    container_instance = containers_ordered[0]
+    #container_instance = containers_ordered[0]
 
     #box_locations_1 = [box for box in box_locations if box['id'] == containers_ordered[0].instance_id]
 
@@ -385,7 +389,7 @@ def results(packing_id):
     return render_template('results.html', container_instances=container_instances, containers_used=containers_used,
                            box_instances=box_instances, boxes_packed=boxes_packed, total_weight=total_weight,
                            average_weight=average_weight, average_box_n=average_box_n, packing_id=packing_id,
-                           containers_ordered=containers_ordered, box_locations=box_locations, min_space=min_space,
+                           containers_ordered=containers_ordered, min_space=min_space,
                            max_space=max_space, max_weight=max_weight, min_weight=min_weight, average_space=average_space)
 
 @app.route("/packing/<int:packing_id>/container_instance/<int:instance_id>")
@@ -398,13 +402,13 @@ def see_instance(packing_id, instance_id):
     #print(box_instances[0].x_end)
     #box_locations_1 = [box for box in box_locations if box['id'] == instance_id]
     box_locations = [dict() for x in range(len(box_instances))]
-    location = {"x_start": 0,
-                "x_end": 0,
-                "y_start": 0,
-                "y_end": 0,
-                "z_start": 0,
-                "z_end": 0,
-                "id": 0}
+    #location = {"x_start": 0,
+    #            "x_end": 0,
+    #            "y_start": 0,
+    #            "y_end": 0,
+    #            "z_start": 0,
+    #            "z_end": 0,
+    #            "id": 0}
     box_ids = []
     for i in range(len(box_instances)):
         box_locations[i] = {
@@ -418,19 +422,41 @@ def see_instance(packing_id, instance_id):
             "box_id": box_instances[i].box_id
         }
         box_ids.append(box_instances[i].box_id)
-        print("hello", file=sys.stderr)
+        #print("hello", file=sys.stderr)
         #location["x_start"] = box_instances[i].x_start
-        print(location["x_start"], file=sys.stderr)
+        #print(location["x_start"], file=sys.stderr)
         #location['x_end'] = box_instances[i].x_end
-        print(location["x_end"], file=sys.stderr)
+        #print(location["x_end"], file=sys.stderr)
         #location['y_start'] = box_instances[i].y_start
-        print(location["y_start"], file=sys.stderr)
+        #print(location["y_start"], file=sys.stderr)
         #location['y_end'] = box_instances[i].y_end
         #location['z_start'] = box_instances[i].z_start
-        print(location["z_start"], file=sys.stderr)
+        #print(location["z_start"], file=sys.stderr)
 
     #weight_pc = 10*1-(container_instance.weight_remaining/container_instance.max_weight)
     box_ids = list(dict.fromkeys(box_ids))
+    boxes = []
+    count = []
+    for b in box_ids:
+        d = len(BoxInstance.query.filter_by(box_id=b).filter_by(container_instance_id=instance_id).all())
+        a = Box.query.filter_by(id=b).first()
+        print("d=" + str(d), file=sys.stderr)
+        #a.toarray()
+        count.append(d)
+        boxes.append(a)
+    boxes_2 = [dict() for x in range(len(boxes))]
+    for i in range(len(boxes)):
+        boxes_2[i] = {
+            "x": boxes[i].x,
+            "y": boxes[i].y,
+            "z": boxes[i].z,
+            "weight": boxes[i].weight,
+            "number": count[i],
+            #"z_end": box_instances[i].z_end,
+            "id": boxes[i].id,
+            #"box_id": box_instances[i].box_id
+        }
+        #box_ids.append(box_instances[i].box_id)
     box_colors = [dict() for x in range(len(box_ids))]
     for b_id in range(len(box_ids)):
         color = "%06x" % random.randint(0, 0xFFFFFF)
@@ -446,208 +472,8 @@ def see_instance(packing_id, instance_id):
 
     return render_template('container_instance_original.html',box_locations=box_locations, container_instance=container_instance,
                            number_of_boxes=number_of_boxes, instance_id=instance_id, weight_remaining=weight_remaining,
-                           space_remaining=space_remaining, box_colors=box_colors)
+                           space_remaining=space_remaining, boxes_2=boxes_2)
 
-
-@app.route("/packing1/<int:packing_id>/plan")
-def generate_plan(packing_id):
-    packing = Packing.query.get_or_404(packing_id)
-    container = Container.query.filter_by(packing_id=packing_id).first()
-    boxes = Box.query.filter_by(packing_id=packing_id).all()
-    #full_weight = 0
-    #for box in boxes:
-        #full_weight += box.weight
-    container_type = container.id
-    packing_id = packing_id
-    x = container.x
-    y = container.y
-    z = container.z
-    name = container.name
-    container_instance_id = 0 #ezt kell növelni új konténernél
-    array_boxes = np.zeros((int(x / 10), int(y / 10), int(z / 10)), dtype='int')
-    #id = random.randint(1, 20000)
-    filename = "instance" + str(container_instance_id) + ".pkl"
-    directory = 'containers/containers_' + str(packing_id)
-    if not os.path.exists(directory):
-        os.makedirs(directory)
-    container_instance_id +=1 #for the next instance
-
-    #boxes_in = [] #integer array of the box_ids
-    boxes_file = "boxids.pkl"
-    #path_box = directory + "/" + boxes_file #lehet ezt hozzá kéne adni a boxhoz?
-    path = directory + "/" + filename
-    pickle.dump(array_boxes, open(path, "wb"))#létrejön példányoításkor, címeiket valahol tárolni kéne
-    #pickle.dump(boxes_in, open(path_box, "wb"))
-
-    #box_p = pickle.load(open(path_box), "rb")
-    data_p = pickle.load(open(path, "rb"))
-    full_weight = data_p[1][1][1]
-
-    box_instances = BoxInstance.query.filter_by(packing_id=packing_id).all()
-    #ha masnak is lehet ilyen packing id, akkor lehet baj
-    #if box_instances.author != current_user:
-        #abort(403)  # forbidden route
-    for b in box_instances:
-        db.session.delete(b)
-        db.session.commit()
-    generate_boxes(packing_id)
-    containers_ordered = ContainerInstance.query.filter_by(packing_id=packing_id).order_by(
-        ContainerInstance.weight_remaining).all()
-    for c in containers_ordered:
-        db.session.delete(c)
-        db.session.commit()
-    #acking = Packing.query.filter_by(id=packing_id).all()
-    container_instance_path = create_container_instance(packing_id)
-    box_instances_ordered = BoxInstance.query.filter_by(packing_id=packing_id).order_by(desc(BoxInstance.x*BoxInstance.y*BoxInstance.z)).all()#order_by(desc(BoxInstance.weight)).
-    #box_instances_ordered.sort(key=weight, reverse=True)
-    #.order_by(BoxInstance.weight.desc())
-    #box_instances_by_size = BoxInstance.query.order_by()
-
-    #v = containers_ordered[0].get('x')
-    #containers are neot ordered yet
-    #b = box_instances_ordered[0]
-    #c = containers_ordered[0]
-    id_i = 1
-    box_locations = []
-    #a_l = {"a": 11111, 'b': 2}
-    #create_container_instance(packing_id)
-    for b in box_instances_ordered:
-        a = False
-        i = 0
-        containers_ordered = ContainerInstance.query.filter_by(packing_id=packing_id).order_by(ContainerInstance.weight_remaining).all()
-        print(containers_ordered[0].instance_id, file=sys.stderr)
-        print(len(containers_ordered), file=sys.stderr)
-        while a==False:
-            #ujra is kell rendezni mindig a konténerelket
-            if len(containers_ordered) > i:
-                c = containers_ordered[i]
-                filename = 'instance' + str(c.instance_id) + ".pkl"
-                directory = 'containers/containers_' + str(packing_id)
-                container_instance_path = directory + "/" + filename
-            else:
-                print('Hello world!', file=sys.stderr)
-                container_instance_path = create_container_instance(packing_id)
-                containers_ordered = ContainerInstance.query.filter_by(packing_id=packing_id).order_by(ContainerInstance.weight_remaining).all()
-                c = containers_ordered[i]
-            a = putbox(c, b, container_instance_path, box_locations, c.instance_id, a)
-            print(a, file=sys.stderr)
-            i += 1
-    l = len(box_locations)
-    #for b in box_instances_ordered:
-        #global a
-        #a = False
-        #space = b.x*b.y*b.z
-        #for co in containers_ordered:
-        #c = containers_ordered[0]
-            #if co.space_remaining>=space and co.weight_remaining>=b.weight:
-                #filename = "instance" + str(co.container_instance_id) + ".pkl"
-                #directory = 'containers/containers_' + str(packing_id)
-                #path = directory + "/" + filename
-                #container instance path needs to be redefined if there is a new instance fix this
-                #global a
-                #putbox(co, b, path,box_locations, id_i, a)
-                #if a :
-                    #break
-        #if not a :
-            #path = create_container_instance(packing_id)
-            #putbox(co, b, path, box_locations, id_i, a)
-
-    #box_locations.append(a_l)
-    a = box_locations[0].get('x_start')
-    b = box_locations[0].get('x_end')
-    dict = {
-        "name" : "Fs",
-        "x" : 3,
-        "y" : b,
-        'z' : a
-    }
-    #dict_2 = {
-        #"name": "Fs",
-        #"x": 3,
-        #"y": 2,
-        #'z': 1
-    #}
-    #dictlist = []
-    #dictlist.append(dict)
-    #dictlist.append(dict_2)
-    #plt.plot([3, 1, 4, 1, 5], 'ks-', mec='w', mew=5, ms=20)
-    #mpld3.show()
-
-    #boxes_plt = []
-    # for a in box3d:
-    # a = box_location[0]
-    # print(a)
-    # print(a.get('x_start'))
-    #for a in box_locations:
-        #cube_1 = (x >= a.get('x_start')) & (x < a.get('x_end')) & (y >= a.get('y_start')) & (y < a.get('y_end')) & (
-        #z >= a.get('z_start')) & (z < a.get('z_end'))
-        #boxes_plt.append(cube_1)
-
-    #voxels = boxes_plt[0]
-    #for i in range(1, len(boxes_plt)):
-        #voxels |= boxes_plt[i]
-    #colors = np.empty(voxels.shape, dtype=object)
-    #colors_list = ['red', 'green', 'blue', 'purple', 'cyan', 'violet', 'springgreen']
-    #for i in boxes_plt:
-        #colors[i] = random.choice(colors_list)
-
-    #x, y, z = np.indices((8, 8, 8))
-
-    # draw cuboids in the top left and bottom right corners, and a link between them
-    #cube1 = (x < 3) & (y < 3) & (z < 3)
-    #cube2 = (x >= 5) & (y >= 5) & (z >= 5)
-    #link = abs(x - y) + abs(y - z) + abs(z - x) <= 2
-
-    # combine the objects into a single boolean array
-    #voxels = cube1 | cube2 | link
-
-    # set the colors of each object
-    #colors = np.empty(voxels.shape, dtype=object)
-    #colors[link] = 'red'
-    #colors[cube1] = 'blue'
-    #colors[cube2] = 'green'
-
-    # and plot everything
-    #fig = plt.figure()
-    #ax = fig.gca(projection='3d')
-    #ax.voxels(voxels, facecolors=colors, edgecolor='k')
-    #fig = plt.figure()
-    #ax = fig.gca(projection='3d')
-    #ax.voxels(voxels, facecolors=colors, edgecolor='k')
-
-    #mpld3.show()
-    #pd.Series(fig).to_json(orient='values')
-    #json_dump = json.dumps(fig, cls=NumpyEncoder)
-    #html_graph = mpld3.fig_to_html(fig)
-    #for i in range(box_instances_ordered):
-     #   b = box_instances_ordered[i]
-      #  a = 0
-       # c = containers_ordered[a]
-        #while(not b.packed):
-
-
-
-        #maybe filename for the path of the matrix
-        #
-
-
-    #thing_to_save = cPickle.load(open("filename.pkl", "rb"))
-    #container_instance = ContainerInstance(name=name, container_type=container_type, packing_id=packing_id, x=x, y=y, z=z, array_boxes=array_boxes)
-    #post = Post(name=form.title.data, content=form.content.data, author=current_user)
-    #db.session.add(container_instance)
-    #db.session.commit()
-    #lehetne space remaining a konténer adatbázisban, meg weight remaining, database modellhez mehet ez,
-    #  utána id alapján megkeresi a pickleök között a mátrixát, amit frissít a pakolásakor,
-    #  ekkor frissül a weigh és space remaining és a dobozok pickle és a dobozok ide vonatkozó részei
-    #a dobozokat meg szintén hozzádaja a picklökhöz, így vissza lehet hívni az adatot a riporthoz
-
-    #tehát beindul a pakolés, újabb és újabb instanceek lesznek a konténerekből, ezek mappákban lesznek,
-    #a doboz instanceket valahogy át kell adni a pakolófüggvénynek
-    #az id-nak megfelelő mappában a modell, így azt a pakoló átadás nélkül eléri
-    container_instance = containers_ordered[0]
-    box_locations_1 = [box for box in box_locations if box['id'] == containers_ordered[0].instance_id]
-
-    return render_template('plan.html', packing=packing, full_weight=full_weight, box_locations=box_locations_1, box_instances_ordered=box_instances_ordered, containers_ordered=containers_ordered, l=l, container_instance=container_instance)
 
 def send_reset_email(user):
     token = user.get_reset_token()

@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from flask_wtf.file import FileField, FileAllowed
+from flask_wtf.file import FileField, FileAllowed,FileRequired
 from flask_login import current_user
 from wtforms import StringField, PasswordField, SubmitField, BooleanField, TextAreaField, IntegerField
 from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError
@@ -34,6 +34,11 @@ class LoginForm(FlaskForm):
                                     # validators=[DataRequired(), EqualTo('password')]
     remember = BooleanField('Remember Me')
     submit = SubmitField('Sign In')
+
+#class ExcelForm(FlaskForm):
+    #boxes = FileField \
+     #   ('Add boxes', validators=[FileRequired(['xls', 'xlsx'])])
+    #submit = SubmitField('Update')
 
 class UpdateAccountForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired(), Length(min=2, max=20)])
@@ -72,6 +77,8 @@ class PackingForm(FlaskForm):
     submit = SubmitField('Save')
 
 class BoxForm(FlaskForm):
+    #excel_data = FileField \
+    #    ('Update Profile Picture', validators=[FileAllowed(['xls', 'xlsx'])])
     name = StringField('Name', validators=[DataRequired()])
     x = IntegerField('X', validators=[DataRequired()])
     y = IntegerField('Y', validators=[DataRequired()])
