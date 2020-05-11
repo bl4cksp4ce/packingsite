@@ -19,10 +19,9 @@
                     {% endfor %}
                 </div>
                 <div>
-
                     <a class="btn btn-secondary btn-sm mt-1 mb-1" href="{{ url_for('new_container',packing_id=packing.id) }}">Add container</a>
-                     <a class="btn btn-secondary btn-sm mt-1 mb-1" href="{{ url_for('new_box',packing_id=packing.id) }}">Add box</a>
-                     <a class="btn btn-secondary btn-sm mt-1 mb-1" href="{{ url_for('results', packing_id=packing.id) }}">Results</a>
+                    <a class="btn btn-secondary btn-sm mt-1 mb-1" href="{{ url_for('new_box',packing_id=packing.id) }}">Add box</a>
+                    <a class="btn btn-secondary btn-sm mt-1 mb-1" href="{{ url_for('results', packing_id=packing.id) }}">Results</a>
                 </div>
             </div>
         </div>

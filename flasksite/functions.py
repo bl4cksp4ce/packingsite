@@ -8,26 +8,21 @@ import sys
 
 def generate_boxes(packing_id):
 	a = 0
-	#print(a)
 	#container = Container.query.filter_by(packing_id=packing_id).first()
 	boxes = Box.query.filter_by(packing_id=packing_id).all()
-	#packing = Packing.query.get_or_404(packing_id)
-	for b in boxes:#itt a quantityt kell nézni, ami még nincs a box modellben és annyi kell belőle, most mindből csak egyet csinál, belül lehet még egy for ami nullától a quantityig megy
+	for b in boxes:
 		for i in range(b.quantity):
 			box_instance = BoxInstance(name=b.name, box_id = b.id, x=b.x, y=b.y, z=b.z, packed=0, weight=b.weight,
-				  packing_id=packing_id)#todo hozzáadni a forgatási változókat, lehet azok kellenek
+				  r_x = b.r_x, r_y = b.r_y, r_z = b.r_z, packing_id=packing_id)#todo hozzáadni a forgatási változókat, lehet azok kellenek
 			db.session.add(box_instance)
 			db.session.commit()
-			a +=1
+			a += 1
 
 #create container
 def create_container_instance(packing_id):
-	#a = 0
+
 	container = Container.query.filter_by(packing_id=packing_id).first()
 
-	#container_type = container.id
-	#packing_id = packing_id
-	#create container instance as well
 	x = container.x
 	y = container.y
 	z = container.z
@@ -47,10 +42,10 @@ def create_container_instance(packing_id):
 	directory = 'containers/containers_' + str(packing_id)
 	if not os.path.exists(directory):
 		os.makedirs(directory)
-	container_instance_id += 1  # for the next instance
+	container_instance_id += 1
 
 	path = directory + "/" + filename
-	pickle.dump(array_boxes, open(path, "wb"))  # létrejön példányoításkor, címeiket valahol tárolni kéne
+	pickle.dump(array_boxes, open(path, "wb"))
 	return path
 
 	# pickle.dump(boxes_in, open(path_box, "wb"))
@@ -65,81 +60,6 @@ def create_container_instance(packing_id):
 #count remaining space
 #updatepickle and boxinstance and containerinstance
 
-'''def putbox(container, box, container_path):
-	with open(container_path, 'rb') as f:
-		# load using pickle de-serializer
-		container_array = pickle.load(f)
-
-	#container_array = pickle.load(open(container_path), "rb")
-
-	cols = container.y
-	rows = container.z
-	z = container.x
-
-
-	id = box.id
-	boxi = box.y
-	boxj = box.z
-	boxk = box.x
-
-	i = 0
-	j = 0
-	k = 0
-	#print(container)
-
-	while i < cols:
-		j = 0
-		while j < rows:
-			while k < z:
-			#print(arr[i][j])
-				#print("eleje" + str(i) + str(j) + str(k))
-				#input("jajjajj")
-				if container_array[i][j][k] == 0:
-					#if (i, j, k) == (0, 2, 2) :
-							#print(container[i:i+boxi, [range(j, j+boxj)], k:k+boxk])
-							#megtalálja ezt
-							#input("seggfasz")
-							#print(cols, i+boxi, rows, j+boxj, z, k+boxk)
-					if i + boxi <= z and j + boxj <= rows and k + boxk <= cols: #kicsereltem colt zvel most jo
-						#print("segg")
-						#itt romlik el
-						#print("eleje" + str(i) + str(j) + str(k))
-						#if (i, j, k) == (0, 2, 2) :
-							#print(container[i:i+boxi, [range(j, j+boxj)], k:k+boxk])
-							#input("seggfasz2")
-
-						if np.any(container_array[i:i+boxi, [range(j, j+boxj)], k:k+boxk]) == False :
-							#print("itt isvvvvvvvvvvvvvvvvv")
-							#itt vegul beadja a kettest oda is, ahova nem fer be
-							#print(container[i:i+boxi, [range(j, j+boxj)], k:k+boxk])
-							#print("vege" + str(i) + str(j) + str(k))
-							container_array[i:i+boxi, [range(j, j+boxj)], k:k+boxk] = id
-							pickle.dump(container_array, open(container_path, "wb"))
-							#print(container)
-							#input()
-							return True
-						#else :
-							#print(arr[i][j])
-							#print("g")
-							#while container[i][j][k] == 0:###
-								#print(i,j)
-								#k +=1
-								#if i == rows or j == cols:
-									#print(str(i)+ "rows")
-									#break
-							#print('itt nem')
-							#print(str(i) + " " + str(x[i]))
-							#i += 1
-					#else: k +=1
-				#if k < z : k += 1
-				k += 1
-			#print("vege" + str(i) + str(j) + str(k))
-			#input()
-			j += 1
-			k = 0
-			#print("ittaj")
-		i += 1
-		k = 0'''
 def create_states(box):
 	states = []
 	#todo maybe get rid of the duplicated states, also check whether the side is banned
@@ -149,46 +69,52 @@ def create_states(box):
 	#boxj = box.shape[1]
 	i = 0
 	#boxk = box.shape[0]
-	states.append([box.x, box.y, box.z])
-	i += 1
-	box_s[0] = box.x
-	box_s[1] = box.y
-	box_s[2] = box.z
+	if(box.r_z == False):
+		states.append([box.x, box.y, box.z])
+		i += 1
+		box_s[0] = box.x
+		box_s[1] = box.y
+		box_s[2] = box.z
 
 	#states.append(box_s)
-	states.append([box.x, box.z, box.y])
-	i += 1
-	box_s[0] = box.x
-	box_s[1] = box.z
-	box_s[2] = box.y
+	if (box.r_y == False):
+		states.append([box.x, box.z, box.y])
+		i += 1
+		box_s[0] = box.x
+		box_s[1] = box.z
+		box_s[2] = box.y
 
 	#states.append(box_s)
-	states.append([box.y, box.x, box.z])
-	i += 1
-	box_s[0] = box.y
-	box_s[1] = box.x
-	box_s[2] = box.z
+	if (box.r_z == False):
+		states.append([box.y, box.x, box.z])
+		i += 1
+		box_s[0] = box.y
+		box_s[1] = box.x
+		box_s[2] = box.z
 
 	#states.append(box_s)
-	states.append([box.y, box.z, box.x])
-	i += 1
-	box_s[0] = box.y
-	box_s[1] = box.z
-	box_s[2] = box.x
+	if (box.r_x == False):
+		states.append([box.y, box.z, box.x])
+		i += 1
+		box_s[0] = box.y
+		box_s[1] = box.z
+		box_s[2] = box.x
 
 	#states.append(box_s)
-	states.append([box.z, box.x, box.y])
-	i += 1
-	box_s[0] = box.z
-	box_s[1] = box.x
-	box_s[2] = box.y
+	if (box.r_y == False):
+		states.append([box.z, box.x, box.y])
+		i += 1
+		box_s[0] = box.z
+		box_s[1] = box.x
+		box_s[2] = box.y
 
 	#states.append(box_s)
-	states.append([box.z, box.y, box.x])
+	if (box.r_x == False):
+		states.append([box.z, box.y, box.x])
 	#i += 1
-	box_s[0] = box.z
-	box_s[1] = box.y
-	box_s[2] = box.x
+		box_s[0] = box.z
+		box_s[1] = box.y
+		box_s[2] = box.x
 
 	#egyedi állapotok csak, így gyorsul
 	for s in range(len(states)):
@@ -208,7 +134,8 @@ def create_states(box):
 
 def putbox(container, box, container_path, id):  # box_id
 	#mukodo funkcio, tesztelesnel majd be lehet kapcsolni, most meg zavaro
-	#if(container.weight_remaining<box.weight):return False
+	if(container.weight_remaining<box.weight):return False
+	if(container.space_remaining<(box.x*box.y*box.z)): return False
 	#todo space remaining ellenőrzése még itt
 
 	states = create_states(box)

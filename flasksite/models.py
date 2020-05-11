@@ -53,7 +53,6 @@ class Container(db.Model):
     y = db.Column(db.Integer, nullable=False)
     z = db.Column(db.Integer, nullable=False)
     max_weight = db.Column(db.Integer, nullable=False)
-    #user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     packing_id = db.Column(db.Integer, db.ForeignKey('packing.id'), nullable=False)
 
     def __repr__(self):
@@ -87,8 +86,7 @@ class BoxInstance(db.Model):
     z = db.Column(db.Integer, nullable=False)
     weight = db.Column(db.Integer, nullable=False)
     packing_id = db.Column(db.Integer, db.ForeignKey('packing.id'), nullable=False)
-    #lehet primary key a container_instance?
-    container_instance_id = db.Column(db.Integer)#ide nem biztos h kell a nullable
+    container_instance_id = db.Column(db.Integer)
     x_start = db.Column(db.Integer)
     x_end = db.Column(db.Integer)
     y_start = db.Column(db.Integer)
@@ -96,12 +94,15 @@ class BoxInstance(db.Model):
     z_start = db.Column(db.Integer)
     z_end = db.Column(db.Integer)
     packed = db.Column(db.Integer)#inicializálás nullával
+    r_x = db.Column(db.Boolean, default=False, nullable=False)
+    r_y = db.Column(db.Boolean, default=False, nullable=False)
+    r_z = db.Column(db.Boolean, default=False, nullable=False)
 
     def __repr__(self):
         return f"Box instance('name={self.container_instance_id}','name={self.container_instance_id}'," \
                f"'id={self.id}', x='{self.x}', y='{self.y}')," \
-               f"z='{self.z}', weight='{self.weight}', box_id='{self.box_id}'," \
-               f" packed='{self.packed}' packing id= '{self.packing_id}', box_id='{self.box_id}'," \
+               f"z='{self.z}', weight='{self.weight}', box_id='{self.box_id}', x rotation='{self.r_x}', y rotation='{self.r_y}'," \
+               f" x rotation='{self.r_x}', packed='{self.packed}' packing id= '{self.packing_id}', box_id='{self.box_id}'," \
                f" x_start='{self.x_start}', y_start='{self.y_start}'), z_start='{self.z_start}'," \
                f" x_end='{self.x_end}'), y_end='{self.y_end}', z_end='{self.z_end}'),"
 
@@ -114,17 +115,14 @@ class Box(db.Model):
     r_x = db.Column(db.Boolean, default=False, nullable=False)
     r_y = db.Column(db.Boolean, default=False, nullable=False)
     r_z = db.Column(db.Boolean, default=False, nullable=False)
-    up = db.Column(db.Boolean, default=False, nullable=False)
-    down = db.Column(db.Boolean, default=False, nullable=False)
     weight = db.Column(db.Integer, nullable=False)
     quantity = db.Column(db.Integer, nullable=False)
-    #user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     packing_id = db.Column(db.Integer, db.ForeignKey('packing.id'), nullable=False)
 
     def __repr__(self):
         return f"Box('{self.name}', x='{self.x}', y='{self.y}')," \
                f"z='{self.z}', x rotation='{self.r_x}', y rotation='{self.r_y}'," \
-               f" z rotation='{self.r_z}', up='{self.up}', down='{self.down}'," \
+               f" z rotation='{self.r_z}'," \
                f" weight='{self.weight}', packing_id='{self.packing_id}', id='{self.id}', quantity='{self.quantity}')" #, user_id='{self.user_id}')"
 
 class Packing(db.Model):

@@ -1,16 +1,21 @@
 {% extends "layout.html" %}
 {% block content %}
-    <h2 class="article-title">{{ instance_id }}</h2>
+    <h2 class="article-title">Container Instance ID: {{ instance_id }}</h2>
     <p class="article-content">Number of boxes packed:   {{ number_of_boxes }}</p>
     <p class="article-content">Weight remaining:   {{ weight_remaining }} kg</p>
-    <p class="article-content">Space remaining:   {{ space_remaining }} %</p>
     <p class="article-content">Space occupied:   {{ 100-space_remaining }} %</p>
+    <h2><a class="article-title">Type of boxes:</a></h2>
     {% for box in boxes_2 %}
         <article class="media content-section">
             <div class="media-body">
                 <div class="article-metadata">
                 </div>
-                <h2><a class="article-title">{{ box }}</a></h2>
+                <h2><a class="article-title">ID: {{ box.id }}</a></h2>
+                <p class="article-content">X:   {{ box.x }}</p>
+                <p class="article-content">Y:   {{ box.y }} </p>
+                <p class="article-content">Z:   {{ box.z }} </p>
+                <p class="article-content">Weight:   {{ box.weight }} </p>
+                <p class="article-content">Number of boxes:   {{ box.number }} </p>
             </div>
         </article>
     {% endfor %}

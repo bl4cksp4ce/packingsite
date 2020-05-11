@@ -79,11 +79,6 @@ def save_picture(form_picture):
     i.save(picture_path)
     return picture_fn
 
-#@app.route("/excel/<int:packing_id>", methods=['POST', 'GET'])
-#@login_required
-#def excel_boxes(packing_id):
-#    file = request.files['inputFile']
-#    return file.filename
 
 
 @app.route("/account", methods=['GET', 'POST'])
@@ -106,54 +101,6 @@ def account():
     return render_template('account.html', title='Account',
                            image_file=image_file, form=form)
 
-@app.route("/post/new", methods=['GET', 'POST'])
-@login_required
-def new_post():
-    form = PostForm()
-    if form.validate_on_submit():
-        post = Post(title=form.title.data, content = form.content.data, author=current_user)
-        db.session.add(post)
-        db.session.commit()
-        flash('Your post has been created!', 'success')
-        return redirect(url_for('home'))
-    return render_template('create_post.html', title='New Post',
-                           form=form, legend='New Post')
-
-
-@app.route("/post/<int:post_id>")
-def post(post_id) :
-    post = Post.query.get_or_404(post_id)
-    return render_template('post.html', title=post.title, post=post)
-
-@app.route("/post/<int:post_id>/update", methods=['GET', 'POST'])
-@login_required
-def update_post(post_id) :
-    post = Post.query.get_or_404(post_id)
-    if post.author != current_user :
-        abort(403) #forbidden route
-    form = PostForm()
-    if form.validate_on_submit() :
-        post.title = form.title.data
-        post.content = form.content.data
-        db.session.commit() #update db here, no need to add, bc it exists
-        flash('Your post has been updated!', 'success')
-        return redirect(url_for('post', post_id=post.id))
-    elif request.method == 'GET' :
-        form.title.data = post.title
-        form.content.data = post.content
-    return render_template('create_post.html', title='Update Post',
-                           form=form, legend='Update Post')
-
-@app.route("/post/<int:post_id>/delete", methods=['POST'])
-@login_required
-def delete_post(post_id) :
-    post = Post.query.get_or_404(post_id)
-    if post.author != current_user:
-        abort(403)  # forbidden route
-    db.session.delete(post)
-    db.session.commit()
-    flash('Your post has been deleted!', 'success')
-    return redirect(url_for('home'))
 
 @app.route("/packing/<int:packing_id>/container/new", methods=['GET', 'POST'])
 @login_required
@@ -196,11 +143,11 @@ def new_box(packing_id):
     packing = Packing.query.get_or_404(packing_id)
     if form.validate_on_submit():
         box = Box(name=form.name.data, x=form.x.data, y=form.y.data,z=form.z.data, r_x=form.r_x.data, r_y=form.r_y.data, r_z=form.r_z.data,
-            up=form.up.data, down=form.down.data, weight=form.weight.data, quantity=form.quantity.data, packing=packing) #fix this, add db box
+        weight=form.weight.data, quantity=form.quantity.data, packing=packing) #fix this, add db box
         db.session.add(box)
         db.session.commit()
         flash('Box added', 'success')
-        return redirect(url_for('packings'))
+        return redirect(url_for('packing', packing_id=packing_id))
     return render_template('create_box.html', title='New Box', form=form)
 
 
@@ -211,11 +158,12 @@ def new_box(packing_id):
 def container(container_id, packing_id):
     container = Container.query.get_or_404(container_id)
     packing_id=container.packing_id
-    #containers = Container.query.filter_by(packing_id= packing_id).all()
-    #posts = Post.query.all()
-    #return render_template('home.html', posts=posts)
+    containers = Container.query.filter_by(packing_id= packing_id).all()
+    c = len(containers)
+    print("c =" + str(c), file=sys.stderr)
+        #checking if there is any container
 
-    return render_template('container.html', container = container, packing_id=packing_id)
+    return render_template('container.html', container = container, packing_id=packing_id, c=c)
 
 @app.route('/packing1/<int:packing_id>/box/<int:box_id>/')
 def box(box_id, packing_id):
